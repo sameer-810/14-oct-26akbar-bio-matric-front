@@ -119,7 +119,7 @@ export default function AdmitStudentScreen({ navigation }: Props) {
         <VStack gap={16} style={{ maxWidth: isWide ? 640 : undefined }}>
           <Card>
             <AdmissionSlip
-              academy={settings.data?.name ?? "Akbars Academy"}
+              academy={settings.data?.name ?? "Akbar's Academy"}
               studentName={s.name}
               grNumber={s.grNumber}
               biometricId={s.biometricId}

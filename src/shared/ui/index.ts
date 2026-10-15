@@ -30,3 +30,4 @@ export { StatusChip } from "./StatusChip";
 export { useBreakpoint, useDensity, useControlHeight } from "./useBreakpoint";
 export type { Breakpoint } from "./useBreakpoint";
 export { ToggleRow } from "./ToggleRow";
+export { BrandMark } from "./BrandMark";

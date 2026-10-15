@@ -57,8 +57,8 @@ for (const vp of viewports) {
   await page.goto(base, { waitUntil: "networkidle" });
   await page.getByTestId("login-screen").waitFor({ timeout: 15000 });
 
-  check(await page.getByRole("heading", { name: "Akbars Academy" }).isVisible(), "brand heading visible");
-  check((await page.title()).includes("Akbars Academy"), `document title "${await page.title()}"`);
+  check(await page.getByRole("heading", { name: "Akbar's Academy" }).isVisible(), "brand heading visible");
+  check((await page.title()).includes("Akbar's Academy"), `document title "${await page.title()}"`);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   check(overflow <= 0, `no horizontal overflow (${overflow}px)`);
   const unlabelled = await page.$$eval('[role="button"], button', (els) =>

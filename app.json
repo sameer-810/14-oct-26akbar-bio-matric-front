@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Akbars Academy",
+    "name": "Akbar's Academy",
     "slug": "akbars-academy",
     "version": "1.0.0",
     "orientation": "default",
@@ -26,13 +26,18 @@
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_COARSE_LOCATION"
-      ]
+      ],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      }
     },
     "web": {
       "bundler": "metro",
       "output": "single",
       "themeColor": "#104E82",
-      "description": "Akbars Academy — fingerprint attendance, registers and parent alerts."
+      "description": "Akbar's Academy — fingerprint attendance, registers and parent alerts.",
+      "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-secure-store",
@@ -41,6 +46,15 @@
         "expo-notifications",
         {
           "color": "#0F766E"
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 220,
+          "resizeMode": "contain",
+          "backgroundColor": "#FFFFFF"
         }
       ]
     ],
@@ -55,6 +69,7 @@
     },
     "updates": {
       "url": "https://u.expo.dev/83531652-1a4e-48da-935f-f469b70538d0"
-    }
+    },
+    "icon": "./assets/icon.png"
   }
 }

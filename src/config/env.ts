@@ -16,5 +16,5 @@ const PROD_API = apiBase(process.env.EXPO_PUBLIC_API_URL || "");
 export const environment = {
   apiUrl: __DEV__ ? DEV_API : PROD_API,
   isDev: __DEV__,
-  appName: "Akbars Academy",
+  appName: "Akbar's Academy",
 } as const;

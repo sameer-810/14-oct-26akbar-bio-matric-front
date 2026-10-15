@@ -63,7 +63,7 @@ export default function EnquiryDetailScreen({ route, navigation }: Props) {
           <Card testID="enquiry-admitted">
             <VStack gap={12}>
               <AdmissionSlip
-                academy={settings.data?.name ?? "Akbars Academy"}
+                academy={settings.data?.name ?? "Akbar's Academy"}
                 studentName={admitted.result.student.name}
                 grNumber={admitted.result.student.grNumber}
                 biometricId={admitted.result.student.biometricId}

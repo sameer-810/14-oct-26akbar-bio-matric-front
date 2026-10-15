@@ -99,7 +99,7 @@ export default function StudentDetailScreen({ route, navigation }: Props) {
         {slip ? (
           <Card>
             <AdmissionSlip
-              academy={settings.data?.name ?? "Akbars Academy"}
+              academy={settings.data?.name ?? "Akbar's Academy"}
               studentName={s.name}
               grNumber={s.grNumber}
               biometricId={s.biometricId}

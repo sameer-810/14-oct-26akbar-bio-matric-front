@@ -1,4 +1,5 @@
 import { escapeHtml } from "@shared/print/printHtml";
+import { LOGO_DATA_URI } from "@shared/print/logo";
 import { formatDay, formatRupees, formatWallTime } from "@shared/format";
 import type { Report, ReportCell } from "./types";
 
@@ -107,6 +108,8 @@ export function reportHtml(report: Report, academyName: string, printedOn?: stri
 <style>${BASE_CSS}
   @page { size: A4 ${wide ? "landscape" : "portrait"}; margin: 12mm; }
   body { font-size: 10.5pt; }
+  .brand { display: flex; align-items: center; gap: 8pt; margin-bottom: 4pt; }
+  .brand img { width: 14mm; height: 14mm; }
   .academy { font-size: 9pt; color: #4A5568; text-transform: uppercase; letter-spacing: 0.04em; }
   h1 { font-size: 15pt; margin: 2pt 0; }
   .sub { color: #4A5568; margin-bottom: 4pt; }
@@ -121,8 +124,8 @@ export function reportHtml(report: Report, academyName: string, printedOn?: stri
   .empty { padding: 16pt; text-align: center; color: #6B7280; }
 </style></head>
 <body>
-  <div class="academy">${escapeHtml(academyName)}</div>
-  <h1>${escapeHtml(report.title)}</h1>
+  <div class="brand"><img src="${LOGO_DATA_URI}" alt="" /><div><div class="academy">${escapeHtml(academyName)}</div>
+  <h1>${escapeHtml(report.title)}</h1></div></div>
   ${report.subtitle ? `<div class="sub">${escapeHtml(report.subtitle)}</div>` : ""}
   ${totals ? `<div class="totals">${escapeHtml(totals)}</div>` : ""}
   ${
@@ -152,7 +155,7 @@ export function idCardsHtml(report: Report, academyName: string): string {
   const batchLine = batch ? `${batch.name}${batch.startTime ? ` · ${formatWallTime(batch.startTime)}–${formatWallTime(batch.endTime)}` : ""}` : "";
   const card = (r: Report["rows"][number]) => `
     <div class="card">
-      <div class="academy">${escapeHtml(academyName)}</div>
+      <div class="academy"><img src="${LOGO_DATA_URI}" alt="" /><span>${escapeHtml(academyName)}</span></div>
       <div class="name">${escapeHtml(cellText(r.name))}</div>
       <table>
         <tr><th>GR</th><td>${escapeHtml(cellText(r.grNumber))}</td></tr>
@@ -172,7 +175,8 @@ export function idCardsHtml(report: Report, academyName: string): string {
   .page { display: grid; grid-template-columns: repeat(2, 92mm); grid-template-rows: repeat(4, 66mm); gap: 4mm 6mm; page-break-after: always; break-after: page; }
   .page:last-child { page-break-after: auto; break-after: auto; }
   .card { border: 1px solid #0B1220; border-radius: 3mm; padding: 4mm 5mm; overflow: hidden; display: flex; flex-direction: column; gap: 2mm; }
-  .academy { font-size: 10pt; font-weight: 700; color: #1463A6; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px solid #C3DBF2; padding-bottom: 1.5mm; }
+  .academy { display: flex; align-items: center; gap: 2.5mm; font-size: 10pt; font-weight: 700; color: #1E2A78; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px solid #C3DBF2; padding-bottom: 1.5mm; }
+  .academy img { width: 10mm; height: 10mm; }
   .name { font-size: 13pt; font-weight: 700; }
   table { border-collapse: collapse; font-size: 9.5pt; }
   th { text-align: left; font-weight: 500; color: #4A5568; padding: 0.6mm 3mm 0.6mm 0; white-space: nowrap; vertical-align: top; }

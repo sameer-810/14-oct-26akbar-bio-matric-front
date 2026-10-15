@@ -93,7 +93,7 @@ export default function App() {
         <QueryClientProvider client={queryClient}>
           <NavigationContainer
             linking={linking}
-            documentTitle={{ formatter: (options) => (options?.title ? `${options.title} · Akbars Academy` : "Akbars Academy") }}
+            documentTitle={{ formatter: (options) => (options?.title ? `${options.title} · Akbar's Academy` : "Akbar's Academy") }}
             theme={{
               dark: false,
               colors: {

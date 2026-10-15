@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { View, Pressable, StyleSheet, useWindowDimensions } from "react-native";
+import { Pressable, StyleSheet, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { createDrawerNavigator, type DrawerContentComponentProps } from "@react-navigation/drawer";
-import { Menu, Fingerprint } from "lucide-react-native";
+import { Menu } from "lucide-react-native";
 import { palette, radius, layout } from "@shared/designSystem";
-import { Text, HStack } from "@shared/ui";
+import { Text, HStack, BrandMark } from "@shared/ui";
 import { Sidebar } from "./Sidebar";
 import { NAV_ITEMS, useVisibleNavItems } from "./navItems";
 
@@ -103,11 +103,9 @@ export default function AppNavigator() {
               >
                 <Menu size={22} color={palette.text.primary} strokeWidth={2} />
               </Pressable>
-              <View style={styles.mark}>
-                <Fingerprint size={16} color={palette.primary[700]} strokeWidth={2.2} />
-              </View>
+              <BrandMark size={30} />
               <Text variant="h3" tone="primary">
-                {NAV_ITEMS.find((i) => i.name === route.name)?.label || "Akbars Academy"}
+                {NAV_ITEMS.find((i) => i.name === route.name)?.label || "Akbar's Academy"}
               </Text>
             </HStack>
           </SafeAreaView>
@@ -141,14 +139,6 @@ const styles = StyleSheet.create({
     width: layout.minTouchTarget,
     height: layout.minTouchTarget,
     borderRadius: radius.sm,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  mark: {
-    width: 28,
-    height: 28,
-    borderRadius: radius.sm,
-    backgroundColor: palette.primary[50],
     alignItems: "center",
     justifyContent: "center",
   },

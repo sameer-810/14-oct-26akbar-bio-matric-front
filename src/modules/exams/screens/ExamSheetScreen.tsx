@@ -9,6 +9,7 @@ import { useAuthStore } from "@shared/store/useAuthStore";
 import { apiErrorCode, apiErrorMessage } from "@api/apiClient";
 import { academyToday, formatDateTime, formatDay, formatWallTime } from "@shared/format";
 import { canPrint, escapeHtml, printHtml } from "@shared/print/printHtml";
+import { LOGO_DATA_URI } from "@shared/print/logo";
 import { useSettings } from "@modules/academy/hooks/useAcademy";
 import { useExamActions, useExamSheet } from "../hooks/useExams";
 import { examChipStatus, showMarks, type Exam, type ExamSheet, type MarkRow, type SheetRow } from "../types";
@@ -393,13 +394,14 @@ function printSheet(s: ExamSheet, academy: string) {
   printHtml(`<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(e.name)} — result sheet</title>
 <style>
   body{font-family:Arial,Helvetica,sans-serif;margin:28px;color:#0B1220}
-  h1{font-size:20px;margin:0 0 2px} h2{font-size:15px;margin:0 0 10px;color:#3A4657;font-weight:600}
+  .logo{width:60px;height:60px;display:block;margin:0 0 8px} h1{font-size:20px;margin:0 0 2px} h2{font-size:15px;margin:0 0 10px;color:#3A4657;font-weight:600}
   p{margin:4px 0;color:#3A4657;font-size:13px}
   table{border-collapse:collapse;width:100%;margin-top:14px}
   th,td{border:1px solid #BFC6D0;padding:6px 8px;text-align:left;font-size:13px}
   th{background:#F6F8FA;font-weight:600} td.n{text-align:right;font-variant-numeric:tabular-nums}
   @media print{tr{page-break-inside:avoid}}
 </style></head><body>
+<img class="logo" src="${LOGO_DATA_URI}" alt="" />
 ${academy ? `<h2>${escapeHtml(academy)}</h2>` : ""}
 <h1>${escapeHtml(e.name)} — result sheet</h1>
 <p>${facts}</p>

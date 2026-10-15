@@ -1,9 +1,7 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Pressable } from "react-native";
-import { Fingerprint, Eye, EyeOff } from "lucide-react-native";
+import { View, StyleSheet } from "react-native";
 
-import { Screen, Text, Card, VStack, HStack, Button, TextField, Banner, ChipsRow, useBreakpoint } from "@shared/ui";
-import { palette, radius } from "@shared/designSystem";
+import { Screen, Text, Card, VStack, Button, TextField, Banner, ChipsRow, BrandMark, useBreakpoint } from "@shared/ui";
 import { apiErrorMessage } from "@api/apiClient";
 import { useAuthStore, type Audience } from "@shared/store/useAuthStore";
 import { authApi } from "../api/authApi";
@@ -19,7 +17,6 @@ export default function LoginScreen() {
   const [audience, setAudience] = useState<Audience>("staff");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -44,17 +41,15 @@ export default function LoginScreen() {
     <Screen testID="login-screen">
       <View style={[styles.wrap, isWide && styles.wrapWide]}>
         <VStack gap={24}>
-          <HStack gap={12} align="center">
-            <View style={styles.mark}>
-              <Fingerprint size={28} color={palette.text.inverse} />
-            </View>
-            <VStack gap={2} flex={1}>
-              <Text variant="h1" heading={1}>
-                Akbars Academy
-              </Text>
-              <Text tone="secondary">Sign in to continue</Text>
-            </VStack>
-          </HStack>
+          <VStack gap={10} align="center">
+            <BrandMark variant="badge" size={isWide ? 132 : 112} />
+            <Text variant="h1" heading={1} center>
+              Akbar&apos;s Academy
+            </Text>
+            <Text tone="secondary" center>
+              Sign in to continue
+            </Text>
+          </VStack>
 
           <Card>
             <VStack gap={16}>
@@ -92,26 +87,13 @@ export default function LoginScreen() {
                 label="Password"
                 value={password}
                 onChangeText={setPassword}
-                secureTextEntry={!showPassword}
+                // the field has its own show / hide eye
+                secureTextEntry
                 autoCapitalize="none"
                 autoCorrect={false}
                 autoComplete="current-password"
                 testID="login-password"
                 onSubmitEditing={submit}
-                trailing={
-                  <Pressable
-                    onPress={() => setShowPassword((v) => !v)}
-                    hitSlop={8}
-                    accessibilityRole="button"
-                    accessibilityLabel={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? (
-                      <EyeOff size={18} color={palette.text.tertiary} />
-                    ) : (
-                      <Eye size={18} color={palette.text.tertiary} />
-                    )}
-                  </Pressable>
-                }
               />
               <Button label="Sign in" onPress={submit} loading={busy} fullWidth testID="login-submit" />
               <Text variant="caption" tone="tertiary">
@@ -130,12 +112,4 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   wrap: { paddingTop: 32, width: "100%", alignSelf: "center" },
   wrapWide: { maxWidth: 440, paddingTop: 80 },
-  mark: {
-    width: 52,
-    height: 52,
-    borderRadius: radius.lg,
-    backgroundColor: palette.primary[700],
-    alignItems: "center",
-    justifyContent: "center",
-  },
 });

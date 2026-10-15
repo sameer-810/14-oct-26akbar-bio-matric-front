@@ -12,11 +12,10 @@ import {
   LogOut,
   ChevronsLeft,
   ChevronsRight,
-  Fingerprint,
 } from "lucide-react-native";
 import { useAuthStore } from "@shared/store/useAuthStore";
 import { palette, radius, layout } from "@shared/designSystem";
-import { Text, VStack, HStack, Avatar } from "@shared/ui";
+import { Text, VStack, HStack, Avatar, BrandMark } from "@shared/ui";
 import { type NavItem, SECTION_ORDER, useVisibleNavItems } from "./navItems";
 
 interface Props {
@@ -59,14 +58,12 @@ export function Sidebar({
           marginBottom: 18,
         }}
       >
-        <View style={styles.mark}>
-          <Fingerprint size={18} color={palette.primary[700]} strokeWidth={2.2} />
-        </View>
+        <BrandMark size={36} />
         {!collapsed ? (
           <>
             <VStack gap={1} flex={1}>
               <Text variant="h3" tone="primary" numberOfLines={1}>
-                Akbars Academy
+                Akbar&apos;s Academy
               </Text>
               <Text variant="caption" tone="tertiary" numberOfLines={1}>
                 Cheeta Camp
@@ -256,14 +253,6 @@ const styles = StyleSheet.create({
     backgroundColor: palette.surface.primary,
     borderRightWidth: 1,
     borderRightColor: palette.border.default,
-  },
-  mark: {
-    width: 34,
-    height: 34,
-    borderRadius: radius.md,
-    backgroundColor: palette.primary[50],
-    alignItems: "center",
-    justifyContent: "center",
   },
   toggleBtn: {
     width: 30,
