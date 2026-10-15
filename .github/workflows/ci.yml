@@ -25,10 +25,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: 14-10-26-akbar-front
+      # the API repository is private: a fine-grained token with read access
+      # to its contents, saved in this repository as the secret BACK_REPO_TOKEN
       - uses: actions/checkout@v4
         with:
           repository: sameer-810/14-oct-26akbar-bio-matric-back
           path: 14-10-26-akbar-back
+          token: ${{ secrets.BACK_REPO_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:
