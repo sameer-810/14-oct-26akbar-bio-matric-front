@@ -1,0 +1,60 @@
+name: OTA Update (eas update)
+
+# Sends a screen or wording change to apps already installed on phones in
+# about two minutes — no new build, no store review. Run it from the GitHub
+# "Actions" tab → "OTA Update" → "Run workflow" → say what changed.
+#
+# It can change only JavaScript, styles and images. Anything native — a new
+# permission, a new native library, app.json's native settings — still needs a
+# full build (Build Android / Build iOS). It reaches only phones that installed
+# a build from the SAME channel and the same app version (runtimeVersion =
+# appVersion). The web app on Vercel updates itself on every push and does not
+# need this.
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: "What changed in this update (shown on expo.dev)"
+        required: true
+        default: "Screen and wording update"
+      branch:
+        description: "Channel to publish to (must match the installed build)"
+        required: true
+        default: "preview"
+        type: choice
+        options:
+          - preview
+          - production
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install eas-cli
+        run: npm install -g eas-cli
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Publish OTA update
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          # makes eas / expo run non-interactively
+          CI: "1"
+          # EXPO_PUBLIC_* are inlined into the bundle at export time, so they
+          # must match the build profile's env in eas.json
+          EXPO_PUBLIC_API_URL: https://one4-oct-26akbar-bio-matric-back.onrender.com/api/v1
+        run: |
+          eas update \
+            --branch "${{ github.event.inputs.branch }}" \
+            --platform all \
+            --message "${{ github.event.inputs.message }}"

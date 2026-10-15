@@ -1,0 +1,102 @@
+name: Build iOS (.ipa)
+
+# Run it from the GitHub "Actions" tab → "Build iOS" → "Run workflow". Builds
+# with `eas build --local` on a GitHub macOS runner (no EAS build credits) and
+# publishes the result on the repository's Releases page.
+#
+# WHY macOS: Apple's toolchain only runs on macOS. On a PRIVATE repository
+# GitHub bills macOS minutes at 10x — roughly 4–6 builds a month on the free
+# plan. On a public repository they are free.
+#
+# ONE-TIME PREREQUISITE (cannot be done from CI): on a computer, signed in to
+# Expo as a member of akbarsacademy98s-team, run
+#   npx eas-cli build --platform ios --profile production
+# once and answer the Apple ID and SMS prompts. That creates the distribution
+# certificate and provisioning profile on the EAS servers; this workflow then
+# fetches them with EXPO_TOKEN. Without it the build fails with a credentials
+# error. Needs an Apple Developer account (yearly fee).
+#
+#   • production → .ipa for the App Store; goes to phones only via TestFlight
+#   • preview    → ad-hoc .ipa for iPhones registered with `eas device:create`
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: "EAS build profile"
+        type: choice
+        options:
+          - production
+          - preview
+        default: production
+      submit:
+        description: "Upload to TestFlight after building (production only)"
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 90
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Xcode version in use
+        run: xcodebuild -version
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Cache CocoaPods
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cocoapods
+            ios/Pods
+          key: pods-${{ runner.os }}-${{ hashFiles('**/package-lock.json', 'app.json', 'eas.json') }}
+          restore-keys: |
+            pods-${{ runner.os }}-
+
+      - name: Install eas-cli
+        run: npm install -g eas-cli
+
+      - name: Install dependencies
+        run: npm ci
+
+      # credentials are pulled from the EAS servers with EXPO_TOKEN (see above)
+      - name: Build (local — free, no EAS credits)
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          eas build --local \
+            --platform ios \
+            --profile "${{ inputs.profile }}" \
+            --non-interactive \
+            --output "${{ github.workspace }}/akbars-academy.ipa"
+
+      - name: Publish build to a GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="ios-${{ inputs.profile }}-${{ github.run_number }}"
+          gh release create "$TAG" \
+            "akbars-academy.ipa" \
+            --title "iOS ${{ inputs.profile }} build #${{ github.run_number }}" \
+            --notes "Automated \`eas build --local\` output. Download the .ipa below." \
+            --prerelease
+
+      # needs an App Store Connect API key stored on EAS
+      # (`eas credentials` → iOS → App Store Connect API Key)
+      - name: Submit to TestFlight
+        if: ${{ inputs.submit && inputs.profile == 'production' }}
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          eas submit \
+            --platform ios \
+            --path "${{ github.workspace }}/akbars-academy.ipa" \
+            --non-interactive

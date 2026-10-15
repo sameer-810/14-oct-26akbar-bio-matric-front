@@ -9,22 +9,27 @@
       "distribution": "internal",
       "env": {
         "EXPO_PUBLIC_API_URL_DEV": "http://10.0.2.2:5010/api/v1"
-      }
+      },
+      "channel": "development"
     },
     "preview": {
       "distribution": "internal",
-      "android": { "buildType": "apk" },
+      "android": {
+        "buildType": "apk"
+      },
       "channel": "preview",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://api.akbarsacademy.com/api/v1"
+        "EXPO_PUBLIC_API_URL": "https://one4-oct-26akbar-bio-matric-back.onrender.com/api/v1"
       }
     },
     "production": {
       "autoIncrement": true,
-      "android": { "buildType": "app-bundle" },
+      "android": {
+        "buildType": "app-bundle"
+      },
       "channel": "production",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://api.akbarsacademy.com/api/v1"
+        "EXPO_PUBLIC_API_URL": "https://one4-oct-26akbar-bio-matric-back.onrender.com/api/v1"
       }
     }
   },

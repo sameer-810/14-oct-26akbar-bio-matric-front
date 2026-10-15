@@ -8,8 +8,10 @@
  * emulator address the way the old parent app did.
  */
 
-const DEV_API = process.env.EXPO_PUBLIC_API_URL_DEV || "http://localhost:5010/api/v1";
-const PROD_API = process.env.EXPO_PUBLIC_API_URL || "";
+import { apiBase } from "./apiBase";
+
+const DEV_API = apiBase(process.env.EXPO_PUBLIC_API_URL_DEV || "http://localhost:5010/api/v1");
+const PROD_API = apiBase(process.env.EXPO_PUBLIC_API_URL || "");
 
 export const environment = {
   apiUrl: __DEV__ ? DEV_API : PROD_API,

@@ -1,0 +1,93 @@
+name: CI
+
+# Runs on every push and pull request. The API is checked out beside the app,
+# as on the developer's machine, because the browser gates boot the REAL API
+# on an in-memory database and drive each phase's journeys in a real browser.
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  app:
+    name: App — typecheck, lint, web build, browser gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: 14-10-26-akbar-front
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: 14-10-26-akbar-front
+      - uses: actions/checkout@v4
+        with:
+          repository: sameer-810/14-oct-26akbar-bio-matric-back
+          path: 14-10-26-akbar-back
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            14-10-26-akbar-front/package-lock.json
+            14-10-26-akbar-back/package-lock.json
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npx expo lint
+
+      - name: Unit tests
+        run: npm test
+
+      # Built against the live API's address, exactly as Vercel builds it
+      - name: Build web
+        run: npm run build:web
+        env:
+          EXPO_PUBLIC_API_URL: https://one4-oct-26akbar-bio-matric-back.onrender.com/api/v1
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+
+      # A bundle that compiles and then throws on first paint is a green build
+      # with a dead app. This drives the real export in a real browser.
+      - name: Verify the shell renders
+        run: node tools/verifyShell.mjs
+
+      - name: Install API dependencies
+        run: npm ci
+        working-directory: 14-10-26-akbar-back
+
+      - name: Verify access and identity (phase 2)
+        run: node tools/verifyAccess.mjs
+      - name: Verify academy setup and admission (phase 3)
+        run: node tools/verifyAcademy.mjs
+      - name: Verify the attendance engine (phase 4)
+        run: node tools/verifyAttendance.mjs
+      - name: Verify parent alerts and the parent app (phase 5)
+        run: node tools/verifyParent.mjs
+      - name: Verify lectures, timetable and faculty (phase 6)
+        run: node tools/verifyLectures.mjs
+      - name: Verify tests, notices, documents, issues and reports (phase 7)
+        run: node tools/verifyAcademics.mjs
+      - name: Verify enquiries and follow-ups (phase 8)
+        run: node tools/verifyEnquiries.mjs
+      - name: Verify fees and expenses (phase 9)
+        run: node tools/verifyFees.mjs
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: 14-10-26-akbar-front/docs/shots/
+          if-no-files-found: ignore
