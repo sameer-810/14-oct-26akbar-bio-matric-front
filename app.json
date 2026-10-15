@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "Akbars Academy",
+    "slug": "akbars-academy",
+    "version": "1.0.0",
+    "orientation": "default",
+    "scheme": "akbars",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "in.akbarsacademy.app"
+    },
+    "android": {
+      "package": "in.akbarsacademy.app",
+      "permissions": ["android.permission.VIBRATE"],
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "themeColor": "#104E82",
+      "description": "Akbars Academy — fingerprint attendance, registers and parent alerts."
+    },
+    "plugins": ["expo-secure-store", "expo-font", ["expo-notifications", { "color": "#0F766E" }]],
+    "runtimeVersion": {
+      "policy": "appVersion"
+    }
+  }
+}
