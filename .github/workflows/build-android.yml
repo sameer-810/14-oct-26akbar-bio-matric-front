@@ -9,7 +9,7 @@ name: Build Android (.apk / .aab)
 #                  the staff's phones (default — start here)
 #   • production → signed .aab for the Play Store
 #
-# Both builds talk to https://one4-oct-26akbar-bio-matric-back.onrender.com
+# Both builds talk to https://bio.fiveminfotech.com
 # (eas.json). Needs the repository secret EXPO_TOKEN.
 on:
   workflow_dispatch:
@@ -142,5 +142,5 @@ jobs:
           gh release create "$TAG" \
             "akbars-academy.${{ steps.out.outputs.ext }}" \
             --title "Android ${{ inputs.profile }} build #${{ github.run_number }}" \
-            --notes "Automated \`eas build --local\` output. Download the .${{ steps.out.outputs.ext }} file below. API: https://one4-oct-26akbar-bio-matric-back.onrender.com" \
+            --notes "Automated \`eas build --local\` output. Download the .${{ steps.out.outputs.ext }} file below. API: https://bio.fiveminfotech.com" \
             --prerelease

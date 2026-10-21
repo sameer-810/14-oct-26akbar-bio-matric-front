@@ -52,7 +52,7 @@ jobs:
           CI: "1"
           # EXPO_PUBLIC_* are inlined into the bundle at export time, so they
           # must match the build profile's env in eas.json
-          EXPO_PUBLIC_API_URL: https://one4-oct-26akbar-bio-matric-back.onrender.com/api/v1
+          EXPO_PUBLIC_API_URL: https://bio.fiveminfotech.com/api/v1
         run: |
           eas update \
             --branch "${{ github.event.inputs.branch }}" \

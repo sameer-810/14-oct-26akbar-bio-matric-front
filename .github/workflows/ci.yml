@@ -56,7 +56,7 @@ jobs:
       - name: Build web
         run: npm run build:web
         env:
-          EXPO_PUBLIC_API_URL: https://one4-oct-26akbar-bio-matric-back.onrender.com/api/v1
+          EXPO_PUBLIC_API_URL: https://bio.fiveminfotech.com/api/v1
 
       - name: Install Playwright
         run: npx playwright install --with-deps chromium
