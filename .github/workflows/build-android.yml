@@ -76,10 +76,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # puts sdkmanager on PATH and accepts the licences; Gradle downloads the
-      # exact platform, build tools and NDK this Expo SDK asks for
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+      # The runner image already has the Android SDK (ANDROID_HOME). Accept its
+      # licences so Gradle can download the platform, build tools and NDK this
+      # Expo SDK asks for. (android-actions/setup-android fetched its own newer
+      # tools and then could not answer the licence prompts.)
+      - name: Accept Android SDK licences
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          ls "$ANDROID_HOME/licenses"
 
       - name: Pick output extension for the profile
         id: out
