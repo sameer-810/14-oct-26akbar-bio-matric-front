@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Users } from "lucide-react-native";
-import { Screen, VStack, HStack, Text, Card, Button, StatusChip, EmptyState, Skeleton, ErrorState, Banner } from "@shared/ui";
+import { Screen, VStack, HStack, Text, Card, Button, StatusChip, EmptyState, Skeleton, ErrorState, Banner, SearchInput } from "@shared/ui";
 import { PERMISSIONS } from "@shared/permissions";
 import { useAuthStore } from "@shared/store/useAuthStore";
 import { useBatches, useStandards, useCurrentYear } from "../hooks/useAcademy";
@@ -19,9 +19,16 @@ export default function BatchesScreen() {
   const batches = useBatches(year ? { academicYearId: year.id } : {});
   const canManage = useAuthStore((s) => s.hasPermission(PERMISSIONS.BATCHES_MANAGE));
   const [editing, setEditing] = useState<string | "new" | null>(null);
+  const [search, setSearch] = useState("");
+  const needle = search.trim().toLowerCase();
 
   const byStandard = (standards.data ?? [])
-    .map((s) => ({ standard: s, batches: (batches.data ?? []).filter((b) => b.standardId === s.id) }))
+    .map((s) => ({
+      standard: s,
+      batches: (batches.data ?? []).filter(
+        (b) => b.standardId === s.id && (!needle || `${b.name} ${s.name} ${b.room ?? ""}`.toLowerCase().includes(needle)),
+      ),
+    }))
     .filter((g) => g.batches.length);
 
   return (
@@ -34,6 +41,9 @@ export default function BatchesScreen() {
       <VStack gap={16}>
         {!year && !batches.isLoading ? <Banner tone="warning" message="Set the current academic year in Settings first." /> : null}
         {editing === "new" ? <BatchForm onDone={() => setEditing(null)} /> : null}
+        {(batches.data?.length ?? 0) > 6 ? (
+          <SearchInput value={search} onChangeText={setSearch} placeholder="Search batches" />
+        ) : null}
         {batches.isLoading ? <Skeleton height={120} /> : null}
         {batches.error ? <ErrorState error={batches.error} onRetry={() => void batches.refetch()} /> : null}
         {batches.data && batches.data.length === 0 ? <EmptyState icon={Users} title="No batches this year yet" /> : null}

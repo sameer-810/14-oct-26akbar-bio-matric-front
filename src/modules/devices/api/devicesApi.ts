@@ -17,6 +17,10 @@ export const devicesApi = Object.freeze({
   async block(id: string): Promise<Device> {
     return (await apiClient.post(`/devices/${id}/block`)).data.data;
   },
+  /** Only a blocked or never-approved machine; its punches stay. */
+  async remove(id: string): Promise<void> {
+    await apiClient.delete(`/devices/${id}`);
+  },
   async commands(id: string): Promise<DeviceCommand[]> {
     return (await apiClient.get(`/devices/${id}/commands`, { params: { limit: 50 } })).data.data;
   },

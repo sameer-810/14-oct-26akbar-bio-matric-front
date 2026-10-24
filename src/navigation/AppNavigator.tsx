@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Pressable, StyleSheet, useWindowDimensions } from "react-native";
+import { Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { createDrawerNavigator, type DrawerContentComponentProps } from "@react-navigation/drawer";
-import { Menu } from "lucide-react-native";
+import { Menu, Bell } from "lucide-react-native";
 import { palette, radius, layout } from "@shared/designSystem";
 import { Text, HStack, BrandMark } from "@shared/ui";
 import { Sidebar } from "./Sidebar";
@@ -34,6 +34,9 @@ import RegistersNavigator from "@modules/attendance/RegistersNavigator";
 import PunchesScreen from "@modules/attendance/screens/PunchesScreen";
 import LeaveRequestsScreen from "@modules/attendance/screens/LeaveRequestsScreen";
 import AlertLogScreen from "@modules/notifications/screens/AlertLogScreen";
+import InboxScreen from "@modules/notifications/screens/InboxScreen";
+import { InboxWatcher } from "@modules/notifications/components/InboxWatcher";
+import { useUnreadInbox } from "@modules/notifications/hooks/useInbox";
 
 /** Route name → screen. Kept out of navItems.ts so that stays a pure data module. */
 const SCREENS: Record<string, React.ComponentType<object>> = {
@@ -62,8 +65,33 @@ const SCREENS: Record<string, React.ComponentType<object>> = {
   Devices: DevicesNavigator,
   Users: UsersNavigator,
   Audit: AuditTrailScreen,
+  Inbox: InboxScreen,
   Profile: ProfileScreen,
 };
+
+/** The bell on a phone's app bar, with the unread count. */
+function HeaderBell({ onPress }: { onPress: () => void }) {
+  const n = useUnreadInbox().data?.unread ?? 0;
+  return (
+    <Pressable
+      onPress={onPress}
+      hitSlop={8}
+      style={styles.menuBtn}
+      accessibilityRole="button"
+      accessibilityLabel={n ? `Notifications, ${n} unread` : "Notifications"}
+      testID="header-bell"
+    >
+      <Bell size={21} color={palette.text.primary} strokeWidth={2} />
+      {n ? (
+        <View style={styles.badge}>
+          <Text variant="caption" style={styles.badgeText}>
+            {n > 9 ? "9+" : String(n)}
+          </Text>
+        </View>
+      ) : null}
+    </Pressable>
+  );
+}
 
 const Drawer = createDrawerNavigator();
 
@@ -88,6 +116,13 @@ export default function AppNavigator() {
     <Drawer.Navigator
       initialRouteName={items.some((i) => i.name === "Dashboard") ? "Dashboard" : first}
       drawerContent={drawerContent}
+      // around the whole staff app, once: a pop-up for each note that arrives
+      layout={({ children, navigation }) => (
+        <View style={{ flex: 1 }}>
+          {children}
+          <InboxWatcher onOpen={() => navigation.navigate("Inbox")} />
+        </View>
+      )}
       screenOptions={{
         drawerType: isWide ? "permanent" : "front",
         headerShown: !isWide,
@@ -104,9 +139,10 @@ export default function AppNavigator() {
                 <Menu size={22} color={palette.text.primary} strokeWidth={2} />
               </Pressable>
               <BrandMark size={30} />
-              <Text variant="h3" tone="primary">
+              <Text variant="h3" tone="primary" style={{ flex: 1 }}>
                 {NAV_ITEMS.find((i) => i.name === route.name)?.label || "Akbar's Academy"}
               </Text>
+              <HeaderBell onPress={() => navigation.navigate("Inbox")} />
             </HStack>
           </SafeAreaView>
         ),
@@ -135,6 +171,19 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: palette.border.default,
   },
+  badge: {
+    position: "absolute",
+    top: 4,
+    right: 2,
+    minWidth: 18,
+    height: 18,
+    paddingHorizontal: 4,
+    borderRadius: 9,
+    backgroundColor: "#A82418",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  badgeText: { color: "#fff", fontSize: 11, lineHeight: 14 },
   menuBtn: {
     width: layout.minTouchTarget,
     height: layout.minTouchTarget,

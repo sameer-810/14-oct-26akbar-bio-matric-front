@@ -25,6 +25,7 @@ import { formatDateTime } from "@shared/format";
 import { useUser, useUpdateUser, useResetPassword, useRoleCatalogue } from "../hooks/useUsers";
 import { PermissionEditor } from "../components/PermissionEditor";
 import { TemporaryPasswordPanel } from "../components/TemporaryPasswordPanel";
+import { StaffAttendanceCard } from "../components/StaffAttendanceCard";
 import type { UsersParamList } from "../UsersNavigator";
 
 type Props = NativeStackScreenProps<UsersParamList, "UserDetail">;
@@ -136,6 +137,7 @@ export default function UserDetailScreen({ route, navigation }: Props) {
             </VStack>
           </Card>
         </View>
+        <StaffAttendanceCard user={u} />
       </VStack>
 
       <ConfirmDialog

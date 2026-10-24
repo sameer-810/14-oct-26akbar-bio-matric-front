@@ -14,6 +14,10 @@ export function useUser(id: string) {
   return useQuery({ queryKey: ["user", id], queryFn: () => usersApi.get(id) });
 }
 
+export function useUserDays(id: string, from: string, to: string, enabled: boolean) {
+  return useQuery({ queryKey: ["userDays", id, from, to], queryFn: () => usersApi.days(id, from, to), enabled });
+}
+
 export function useCreateUser() {
   const qc = useQueryClient();
   return useMutation({

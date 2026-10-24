@@ -16,6 +16,8 @@ export interface CreateUserInput {
   role: Role;
   /** the faculty member this login belongs to */
   teacherId?: string;
+  /** the number on the fingerprint machines, for staff who punch */
+  biometricId?: string;
 }
 
 export interface UpdateUserInput {
@@ -25,6 +27,7 @@ export interface UpdateUserInput {
   role?: Role;
   permissions?: string[];
   isActive?: boolean;
+  biometricId?: string | null;
 }
 
 export interface Paginated<T> {

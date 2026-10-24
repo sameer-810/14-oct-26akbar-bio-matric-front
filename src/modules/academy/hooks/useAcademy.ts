@@ -38,5 +38,6 @@ export const useCreateSchool = () => useSave((name: string) => academyApi.create
 export const useCreateBatch = () => useSave((b: Partial<Batch>) => academyApi.createBatch(b), [["batches"]]);
 export const useUpdateBatch = () =>
   useSave(({ id, ...b }: Partial<Batch> & { id: string }) => academyApi.updateBatch(id, b), [["batches"]]);
+export const useRemoveBatch = () => useSave((id: string) => academyApi.removeBatch(id), [["batches"]]);
 export const useCreateHoliday = () => useSave((h: Omit<Holiday, "id">) => academyApi.createHoliday(h), [["holidays"]]);
 export const useRemoveHoliday = () => useSave((id: string) => academyApi.removeHoliday(id), [["holidays"]]);

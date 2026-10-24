@@ -9,6 +9,7 @@ export interface Teacher {
   dateOfBirth: string | null;
   address: string;
   subjects: string[];
+  batchIds: string[];
   biometricId: string;
   joinedOn: string | null;
   isActive: boolean;
@@ -16,17 +17,15 @@ export interface Teacher {
   fingerprintEnrolled?: boolean;
 }
 
-/** Days at the academy (first in, last out) and every punch, from the machine. */
-export interface TeacherDays {
-  days: { date: string; inAt: string | null; outAt: string | null; minutes: number; punchCount: number }[];
-  punches: { at: string; kind: string | null; source: string; deviceSerial: string }[];
-}
+/** Days at the academy (every IN with its OUT) and every punch, from the machines. */
+export type { PunchDays as TeacherDays } from "@shared/ui";
 
 export interface TeacherInput {
   title?: string;
   name: string;
   phone?: string;
   subjects?: string[];
+  batchIds?: string[];
   biometricId?: string;
   isActive?: boolean;
 }

@@ -48,6 +48,11 @@ export function useBlockDevice(id: string) {
   return useMutation({ mutationFn: () => devicesApi.block(id), onSuccess: invalidate });
 }
 
+export function useRemoveDevice(id: string) {
+  const invalidate = useInvalidateDevice(id);
+  return useMutation({ mutationFn: () => devicesApi.remove(id), onSuccess: invalidate });
+}
+
 export function useQueueCommand(id: string) {
   const invalidate = useInvalidateDevice(id);
   return useMutation({

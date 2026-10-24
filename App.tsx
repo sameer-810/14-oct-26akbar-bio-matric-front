@@ -49,6 +49,7 @@ const linking: LinkingOptions<RootParamList> = {
           Devices: { path: "devices", screens: { DevicesList: "", DeviceDetail: ":id" } },
           Users: { path: "staff", screens: { UsersList: "", CreateUser: "new", UserDetail: ":id" } },
           Audit: "audit",
+          Inbox: "notifications",
           Profile: "account",
         },
       },

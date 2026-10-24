@@ -25,6 +25,8 @@ export interface StaffAccount {
   roleLabel: string;
   permissions: string[];
   teacherId: string | null;
+  /** the number on the fingerprint machines, for staff who punch */
+  biometricId?: string | null;
   mustChangePassword: boolean;
   isActive: boolean;
   lastLoginAt: string | null;

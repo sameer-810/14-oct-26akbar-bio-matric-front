@@ -23,6 +23,7 @@ import { PERMISSIONS } from "@shared/permissions";
 import { useAuthStore } from "@shared/store/useAuthStore";
 import { apiErrorMessage } from "@api/apiClient";
 import { useTeachers, useSaveTeacher } from "../hooks/useTeachers";
+import { useBatches, useCurrentYear } from "@modules/academy/hooks/useAcademy";
 import type { Teacher } from "../types";
 
 /**
@@ -84,8 +85,16 @@ function TeacherForm({ teacher, onDone }: { teacher?: Teacher; onDone: () => voi
     subjects: (teacher?.subjects ?? []).join(", "),
     biometricId: "",
     isActive: teacher?.isActive ?? true,
+    batchIds: teacher?.batchIds ?? [],
   });
   const [error, setError] = useState<string | null>(null);
+  const year = useCurrentYear();
+  const batches = useBatches(year ? { academicYearId: year.id } : {});
+  const toggleBatch = (id: string) =>
+    setV((cur) => ({
+      ...cur,
+      batchIds: cur.batchIds.includes(id) ? cur.batchIds.filter((b) => b !== id) : [...cur.batchIds, id],
+    }));
 
   async function submit() {
     setError(null);
@@ -96,6 +105,7 @@ function TeacherForm({ teacher, onDone }: { teacher?: Teacher; onDone: () => voi
         name: v.name,
         phone: v.phone,
         subjects: v.subjects.split(",").map((s) => s.trim()).filter(Boolean),
+        batchIds: v.batchIds,
         ...(teacher ? { isActive: v.isActive } : v.biometricId ? { biometricId: v.biometricId } : {}),
       });
       onDone();
@@ -124,6 +134,26 @@ function TeacherForm({ teacher, onDone }: { teacher?: Teacher; onDone: () => voi
           <TextField label="Mobile" value={v.phone} onChangeText={(t) => setV({ ...v, phone: t })} keyboardType="phone-pad" containerStyle={{ flex: 1, minWidth: 180 }} />
           <TextField label="Subjects" value={v.subjects} onChangeText={(t) => setV({ ...v, subjects: t })} placeholder="Maths, Physics" containerStyle={{ flex: 2, minWidth: 200 }} />
         </HStack>
+        {(batches.data ?? []).filter((b) => b.isActive).length ? (
+          <VStack gap={6}>
+            <Text variant="label">Batches they take</Text>
+            <HStack gap={6} wrap>
+              {(batches.data ?? [])
+                .filter((b) => b.isActive)
+                .map((b) => (
+                  <Button
+                    key={b.id}
+                    label={b.name}
+                    size="xs"
+                    variant={v.batchIds.includes(b.id) ? "primary" : "secondary"}
+                    onPress={() => toggleBatch(b.id)}
+                    accessibilityHint={v.batchIds.includes(b.id) ? "Assigned. Press to remove." : "Press to assign."}
+                    testID={`teacher-batch-${b.name}`}
+                  />
+                ))}
+            </HStack>
+          </VStack>
+        ) : null}
         {!teacher ? (
           <TextField
             label="Fingerprint ID already on the machine"

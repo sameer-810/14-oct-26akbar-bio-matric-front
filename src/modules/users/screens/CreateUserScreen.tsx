@@ -24,7 +24,7 @@ const ROLE_HINTS: Record<Role, string> = {
 export default function CreateUserScreen({ navigation }: Props) {
   const { isWide } = useBreakpoint();
   const create = useCreateUser();
-  const [form, setForm] = useState({ name: "", username: "", phone: "", role: "", teacherId: "" });
+  const [form, setForm] = useState({ name: "", username: "", phone: "", role: "", teacherId: "", biometricId: "" });
   const teachers = useTeachers({ active: true });
   const [errors, setErrors] = useState<FieldErrors>({});
   const [error, setError] = useState<string | null>(null);
@@ -41,6 +41,7 @@ export default function CreateUserScreen({ navigation }: Props) {
         ...parsed.data,
         phone: parsed.data.phone || undefined,
         teacherId: parsed.data.role === "teacher" && form.teacherId ? form.teacherId : undefined,
+        biometricId: parsed.data.role !== "teacher" && form.biometricId ? form.biometricId : undefined,
       });
       setCreated({ id: r.user.id, username: r.user.username, password: r.temporaryPassword });
     } catch (err) {
@@ -97,6 +98,16 @@ export default function CreateUserScreen({ navigation }: Props) {
                 onChange={set("teacherId")}
                 hint="Their own lectures, punches and salary appear under My teaching."
                 placeholder="Choose who this login is for"
+              />
+            ) : null}
+            {form.role && form.role !== "teacher" ? (
+              <TextField
+                label="Fingerprint ID (optional)"
+                value={form.biometricId}
+                onChangeText={(t) => set("biometricId")(t.replace(/\D/g, ""))}
+                keyboardType="number-pad"
+                hint="The number they are enrolled under on the machines, if they punch."
+                testID="cu-bio"
               />
             ) : null}
             <HStack gap={8}>

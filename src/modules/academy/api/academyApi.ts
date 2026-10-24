@@ -22,6 +22,10 @@ export const academyApi = Object.freeze({
   batches: (params: { academicYearId?: string; standardId?: string } = {}) => data<Batch[]>(apiClient.get("/batches", { params })),
   createBatch: (b: Partial<Batch>) => data<Batch>(apiClient.post("/batches", b)),
   updateBatch: (id: string, b: Partial<Batch>) => data<Batch>(apiClient.patch(`/batches/${id}`, b)),
+  // only a batch that was never used; the server says so otherwise
+  removeBatch: async (id: string) => {
+    await apiClient.delete(`/batches/${id}`);
+  },
 
   holidays: (params: { from?: string; to?: string } = {}) => data<Holiday[]>(apiClient.get("/holidays", { params })),
   createHoliday: (h: Omit<Holiday, "id">) => data<Holiday>(apiClient.post("/holidays", h)),

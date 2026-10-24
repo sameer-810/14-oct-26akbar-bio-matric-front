@@ -17,6 +17,7 @@ import { useAuthStore } from "@shared/store/useAuthStore";
 import { palette, radius, layout } from "@shared/designSystem";
 import { Text, VStack, HStack, Avatar, BrandMark } from "@shared/ui";
 import { type NavItem, SECTION_ORDER, useVisibleNavItems } from "./navItems";
+import { useUnreadInbox } from "@modules/notifications/hooks/useInbox";
 
 interface Props {
   activeRoute: string;
@@ -242,11 +243,35 @@ function NavRow({
           {item.label}
         </Text>
       ) : null}
+      {item.name === "Inbox" ? <UnreadBadge /> : null}
     </Pressable>
   );
 }
 
+/** Unread notes on the sidebar's Notifications row. */
+function UnreadBadge() {
+  const n = useUnreadInbox().data?.unread ?? 0;
+  if (!n) return null;
+  return (
+    <View style={styles.unread} accessibilityLabel={`${n} unread`}>
+      <Text variant="caption" style={{ color: "#fff", fontSize: 11, lineHeight: 14 }}>
+        {n > 99 ? "99+" : String(n)}
+      </Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  unread: {
+    marginLeft: "auto",
+    minWidth: 20,
+    height: 20,
+    paddingHorizontal: 6,
+    borderRadius: 10,
+    backgroundColor: "#A82418",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   wrap: {
     flexShrink: 0,
     height: "100%",

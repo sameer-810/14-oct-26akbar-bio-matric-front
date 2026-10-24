@@ -14,6 +14,7 @@ import {
   ListChecks,
   CalendarCheck,
   BellRing,
+  Bell,
   BookOpen,
   Wallet,
   Presentation,
@@ -207,6 +208,7 @@ export const NAV_ITEMS: NavItem[] = [
     permissionAny: [PERMISSIONS.AUDIT_VIEW],
   },
   { name: "MyTeaching", label: "My teaching", icon: Presentation, section: "Workspace", teacherOnly: true },
+  { name: "Inbox", label: "Notifications", icon: Bell, section: "Workspace" },
   { name: "Profile", label: "My account", icon: UserRound, section: "Workspace" },
 ];
 

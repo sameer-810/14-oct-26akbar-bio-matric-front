@@ -2,16 +2,15 @@ import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 
-import { Screen, Card, VStack, HStack, Text, Button, SectionHeader, Skeleton, ErrorState, ChipsRow, useBreakpoint } from "@shared/ui";
+import { Screen, Card, VStack, HStack, Text, Button, Skeleton, ErrorState, ChipsRow, useBreakpoint, PunchDaysCard } from "@shared/ui";
 import { PERMISSIONS } from "@shared/permissions";
 import { useAuthStore } from "@shared/store/useAuthStore";
-import { academyToday, formatDay, formatMonth, formatTime, shiftMonth } from "@shared/format";
+import { academyToday, formatMonth, shiftMonth } from "@shared/format";
 import { LectureCard } from "@modules/lectures/components/LectureCard";
 import { PayRatesCard } from "@modules/payroll/components/PayRatesCard";
 import { MonthPayCard } from "@modules/payroll/components/MonthPayCard";
 import { useTeacherMonth } from "@modules/payroll/hooks/usePayroll";
 import { useTeacher, useTeacherLectures, useTeacherDays } from "../hooks/useTeachers";
-import type { TeacherDays } from "../types";
 
 const monthRange = (ym: string) => {
   const [y, m] = ym.split("-").map(Number);
@@ -88,7 +87,7 @@ export default function TeacherDetailScreen() {
                 ))}
               </>
             ) : days.data ? (
-              <DaysCard data={days.data} />
+              <PunchDaysCard data={days.data} testID="teacher-days" />
             ) : (
               <Skeleton height={120} />
             )}
@@ -106,34 +105,6 @@ export default function TeacherDetailScreen() {
   );
 }
 
-function DaysCard({ data }: { data: TeacherDays }) {
-  return (
-    <Card testID="teacher-days">
-      <VStack gap={8}>
-        <SectionHeader title="At the academy" subtitle="First punch in and last punch out each day." />
-        {data.days.length === 0 ? <Text tone="tertiary">No punches this month.</Text> : null}
-        {data.days.map((d) => (
-          <HStack key={d.date} gap={8}>
-            <Text variant="body-sm" style={{ width: 110 }}>
-              {formatDay(d.date)}
-            </Text>
-            <Text variant="body-sm" style={{ flex: 1 }}>
-              {formatTime(d.inAt)} – {d.outAt ? formatTime(d.outAt) : "no exit punch"}
-            </Text>
-            <Text variant="body-sm" tone="secondary" tabular>
-              {d.minutes ? `${Math.floor(d.minutes / 60)} h ${d.minutes % 60} min` : ""}
-            </Text>
-          </HStack>
-        ))}
-        {data.punches.length ? (
-          <Text variant="caption" tone="tertiary">
-            {data.punches.length} punch{data.punches.length === 1 ? "" : "es"} in all
-          </Text>
-        ) : null}
-      </VStack>
-    </Card>
-  );
-}
 
 const styles = StyleSheet.create({
   cols: { gap: 16 },

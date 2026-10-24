@@ -31,3 +31,4 @@ export { useBreakpoint, useDensity, useControlHeight } from "./useBreakpoint";
 export type { Breakpoint } from "./useBreakpoint";
 export { ToggleRow } from "./ToggleRow";
 export { BrandMark } from "./BrandMark";
+export { PunchDaysCard, type PunchDays } from "./PunchDaysCard";

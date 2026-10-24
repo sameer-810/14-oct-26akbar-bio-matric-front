@@ -31,6 +31,7 @@ import {
   useUpdateDevice,
   useApproveDevice,
   useBlockDevice,
+  useRemoveDevice,
   useQueueCommand,
   useRetryCommand,
   useCancelCommand,
@@ -54,6 +55,7 @@ export default function DeviceDetailScreen({ route, navigation }: Props) {
   const update = useUpdateDevice(id);
   const approve = useApproveDevice(id);
   const block = useBlockDevice(id);
+  const remove = useRemoveDevice(id);
   const queue = useQueueCommand(id);
   const retry = useRetryCommand(id);
   const cancel = useCancelCommand(id);
@@ -62,6 +64,7 @@ export default function DeviceDetailScreen({ route, navigation }: Props) {
   // null until edited: the fields show the server's values without copying them into state
   const [draft, setDraft] = useState<{ name: string; location: string } | null>(null);
   const [confirmBlock, setConfirmBlock] = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState(false);
   const [danger, setDanger] = useState<StaffCommandKind | null>(null);
   const [typed, setTyped] = useState("");
   const [message, setMessage] = useState<{ tone: "success" | "danger"; text: string } | null>(null);
@@ -175,6 +178,9 @@ export default function DeviceDetailScreen({ route, navigation }: Props) {
                   ) : (
                     <Button label="Approve again" onPress={() => run(() => approve.mutateAsync(), "Approved.")} />
                   )}
+                  {d.status !== "approved" ? (
+                    <Button label="Remove machine" variant="critical" onPress={() => setConfirmRemove(true)} testID="device-remove" />
+                  ) : null}
                 </HStack>
               </VStack>
             </Card>
@@ -294,6 +300,25 @@ export default function DeviceDetailScreen({ route, navigation }: Props) {
         loading={block.isPending}
         onConfirm={() => run(async () => { await block.mutateAsync(); setConfirmBlock(false); }, "Blocked.")}
         onCancel={() => setConfirmBlock(false)}
+      />
+      <ConfirmDialog
+        visible={confirmRemove}
+        title="Remove this machine?"
+        message="It disappears from the list and its queued commands are dropped. The punches it already sent stay in attendance. If it connects again it comes back as waiting for approval."
+        confirmLabel="Remove"
+        destructive
+        loading={remove.isPending}
+        onConfirm={async () => {
+          try {
+            await remove.mutateAsync();
+            setConfirmRemove(false);
+            navigation.navigate("DevicesList");
+          } catch (e) {
+            setConfirmRemove(false);
+            setMessage({ tone: "danger", text: apiErrorMessage(e) });
+          }
+        }}
+        onCancel={() => setConfirmRemove(false)}
       />
     </Screen>
   );
