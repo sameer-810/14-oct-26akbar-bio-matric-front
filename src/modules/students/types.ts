@@ -15,7 +15,8 @@ export interface StudentListItem {
   name: string;
   firstName: string;
   lastName: string;
-  batchId: string;
+  /** null: brought over without a batch, still to be placed */
+  batchId: string | null;
   standardId: string;
   status: StudentStatus;
   validTill: string;

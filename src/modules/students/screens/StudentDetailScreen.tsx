@@ -75,7 +75,8 @@ export default function StudentDetailScreen({ route, navigation }: Props) {
   const s = student.data;
   if (student.error || !s) return <Screen title="Student"><ErrorState error={student.error} onRetry={() => void student.refetch()} /></Screen>;
 
-  const batchName = (bid: string) => batches.data?.find((b) => b.id === bid)?.name ?? "another batch";
+  const batchName = (bid: string | null) =>
+    bid ? (batches.data?.find((b) => b.id === bid)?.name ?? "another batch") : "Not in a batch";
   const deviceName = (did: string) => {
     const d = devices.data?.find((x) => x.id === did);
     return d ? d.name || d.serial : "a machine";

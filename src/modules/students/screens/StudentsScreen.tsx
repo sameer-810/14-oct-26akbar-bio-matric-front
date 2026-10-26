@@ -36,7 +36,8 @@ export default function StudentsScreen() {
   const [batchId, setBatchId] = useState<string>("");
   const [page, setPage] = useState(1);
   const students = useStudents({ search: search.trim() || undefined, status, batchId: batchId || undefined, page });
-  const batchName = (id: string) => batches.data?.find((b) => b.id === id)?.name ?? "";
+  const batchName = (id: string | null) =>
+    id ? (batches.data?.find((b) => b.id === id)?.name ?? "") : "Not in a batch";
 
   const columns: Column<StudentListItem>[] = [
     { key: "gr", header: "GR", width: 80, render: (s) => <Text variant="body-sm" tabular>{s.grNumber}</Text> },
@@ -92,7 +93,11 @@ export default function StudentsScreen() {
           <HStack style={{ flex: 1, minWidth: 200 }}>
             <Select
               value={batchId || null}
-              options={[{ value: "", label: "All batches" }, ...(batches.data ?? []).map((b) => ({ value: b.id, label: b.name }))]}
+              options={[
+                { value: "", label: "All batches" },
+                { value: "none", label: "Not in a batch" },
+                ...(batches.data ?? []).map((b) => ({ value: b.id, label: b.name })),
+              ]}
               onChange={(v) => {
                 setBatchId(v);
                 setPage(1);
