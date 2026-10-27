@@ -79,7 +79,18 @@ export interface StudentHistory {
   counts: Counts;
   percent: number | null;
   lectures: { total: number; present: number };
-  days: { date: string; status: DayStatus; entryAt: string | null; exitAt: string | null; durationMinutes: number | null; source: string; reason: string }[];
+  days: {
+    date: string;
+    status: DayStatus;
+    entryAt: string | null;
+    exitAt: string | null;
+    durationMinutes: number | null;
+    /** every IN with its OUT */
+    sessions?: { inAt: string; outAt: string | null }[];
+    /** "import": brought over from the old portal's punch report */
+    source: string;
+    reason: string;
+  }[];
 }
 
 export interface Leave {

@@ -3,7 +3,8 @@ import { View, StyleSheet } from "react-native";
 import { Card, VStack, HStack, Text, Button, TextField, SectionHeader, StatusChip, Banner, ChipsRow } from "@shared/ui";
 import { palette, radius } from "@shared/designSystem";
 import { apiErrorMessage } from "@api/apiClient";
-import { academyToday, formatDay } from "@shared/format";
+import { academyToday, formatDay, formatTime } from "@shared/format";
+import { useCurrentYear } from "@modules/academy/hooks/useAcademy";
 import { useStudentHistory, useLeaves, useAttendanceActions } from "../hooks/useAttendance";
 import type { DayStatus } from "../types";
 
@@ -22,8 +23,11 @@ const back = (days: number) => academyToday(Date.now() - days * 86_400_000);
  * the last 30 days as a strip, and their leave.
  */
 export function StudentAttendanceCard({ studentId, canManage }: { studentId: string; canManage: boolean }) {
-  const [range, setRange] = useState<"30" | "90">("30");
-  const history = useStudentHistory(studentId, back(range === "30" ? 30 : 90), academyToday());
+  const [range, setRange] = useState<"30" | "90" | "year">("30");
+  const year = useCurrentYear();
+  const from = range === "year" && year ? year.startDate : back(range === "90" ? 90 : 30);
+  const history = useStudentHistory(studentId, from, academyToday());
+  const [showDays, setShowDays] = useState(false);
   const leaves = useLeaves(studentId);
   const act = useAttendanceActions();
   const [form, setForm] = useState<{ from: string; to: string; reason: string } | null>(null);
@@ -40,9 +44,10 @@ export function StudentAttendanceCard({ studentId, canManage }: { studentId: str
               chips={[
                 { key: "30", label: "30 days" },
                 { key: "90", label: "90 days" },
+                { key: "year", label: "This year" },
               ]}
               active={range}
-              onChange={(k) => setRange(k as "30" | "90")}
+              onChange={(k) => setRange(k as "30" | "90" | "year")}
             />
           }
         />
@@ -62,6 +67,44 @@ export function StudentAttendanceCard({ studentId, canManage }: { studentId: str
                 <View key={d.date} style={[styles.cell, { backgroundColor: COLORS[d.status] }]} accessibilityLabel={`${formatDay(d.date)} ${d.status}`} />
               ))}
             </View>
+            {h.days.length ? (
+              <Button
+                label={showDays ? "Hide times" : `Show times (${h.days.length} days)`}
+                size="xs"
+                variant="ghost"
+                onPress={() => setShowDays((v) => !v)}
+              />
+            ) : null}
+            {showDays
+              ? [...h.days].reverse().map((d) => {
+                  const pairs = d.sessions?.length ? d.sessions : d.entryAt ? [{ inAt: d.entryAt, outAt: d.exitAt }] : [];
+                  return (
+                    <HStack key={d.date} gap={8} align="flex-start" testID={`day-${d.date}`}>
+                      <Text variant="body-sm" style={{ width: 110 }}>
+                        {formatDay(d.date)}
+                      </Text>
+                      <VStack gap={2} flex={1}>
+                        {pairs.length ? (
+                          pairs.map((p, i) => (
+                            <Text key={i} variant="body-sm">
+                              {formatTime(p.inAt)} – {p.outAt ? formatTime(p.outAt) : "no exit punch"}
+                            </Text>
+                          ))
+                        ) : (
+                          <Text variant="body-sm" tone="tertiary">
+                            {d.status}
+                          </Text>
+                        )}
+                      </VStack>
+                      {d.source === "import" ? (
+                        <Text variant="caption" tone="tertiary">
+                          old system
+                        </Text>
+                      ) : null}
+                    </HStack>
+                  );
+                })
+              : null}
           </>
         ) : null}
 
