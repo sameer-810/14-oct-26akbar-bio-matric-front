@@ -19,6 +19,7 @@ import {
   ConfirmDialog,
   ErrorState,
   Skeleton,
+  Avatar,
   useBreakpoint,
 } from "@shared/ui";
 import { palette } from "@shared/designSystem";
@@ -86,6 +87,7 @@ export default function StudentDetailScreen({ route, navigation }: Props) {
     <Screen
       title={s.name}
       overline={`GR ${s.grNumber}`}
+      leading={<Avatar name={s.name} uri={s.photoUrl || undefined} size={52} />}
       right={<Button label="All students" variant="ghost" size="sm" onPress={() => navigation.navigate("StudentsList")} />}
       testID="student-detail"
     >

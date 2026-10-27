@@ -16,6 +16,7 @@ import {
   StatusChip,
   ErrorState,
   Pagination,
+  Avatar,
   type Column,
 } from "@shared/ui";
 import { palette } from "@shared/designSystem";
@@ -46,12 +47,15 @@ export default function StudentsScreen() {
       header: "Name",
       flex: 2,
       render: (s) => (
-        <VStack gap={1}>
-          <Text variant="label">{s.name}</Text>
-          <Text variant="caption" tone="tertiary">
-            {s.phone || "no phone"}
-          </Text>
-        </VStack>
+        <HStack gap={10} align="center">
+          <Avatar name={s.name} uri={s.photoUrl || undefined} size={32} />
+          <VStack gap={1}>
+            <Text variant="label">{s.name}</Text>
+            <Text variant="caption" tone="tertiary">
+              {s.phone || "no phone"}
+            </Text>
+          </VStack>
+        </HStack>
       ),
     },
     { key: "batch", header: "Batch", flex: 1, render: (s) => <Text variant="body-sm">{batchName(s.batchId)}</Text> },

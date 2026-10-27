@@ -22,6 +22,8 @@ export interface StudentListItem {
   validTill: string;
   phone: string;
   fingerprintEnrolled: boolean;
+  /** "" when there is no photo; the Avatar then shows initials */
+  photoUrl: string;
 }
 
 export interface Student extends StudentListItem {

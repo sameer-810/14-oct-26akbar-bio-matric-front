@@ -2,7 +2,7 @@ import React from "react";
 import { View, StyleSheet } from "react-native";
 import { CheckCircle2, Clock, LogOut, CircleSlash } from "lucide-react-native";
 
-import { Screen, Card, VStack, HStack, Text, SectionHeader, StatusChip, Skeleton, ErrorState, EmptyState, StatTile, useBreakpoint } from "@shared/ui";
+import { Screen, Card, VStack, HStack, Text, SectionHeader, StatusChip, Skeleton, ErrorState, EmptyState, StatTile, Avatar, useBreakpoint } from "@shared/ui";
 import { palette } from "@shared/designSystem";
 import { formatTime, formatDay } from "@shared/format";
 import { useSelectedChild, useChildToday, useOverview, useParentSettings } from "../hooks/useParent";
@@ -24,6 +24,7 @@ export default function ParentHomeScreen() {
   return (
     <Screen
       title={child ? child.name : "Home"}
+      leading={child ? <Avatar name={child.name} uri={child.photoUrl || undefined} size={52} /> : undefined}
       subtitle={child ? `GR ${child.grNumber}${child.batch ? ` · ${child.batch.name}` : ""}` : settings.data?.academy}
       onRefresh={() => {
         void today.refetch();

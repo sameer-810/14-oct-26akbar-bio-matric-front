@@ -7,6 +7,7 @@ export interface Child {
   firstName: string;
   name: string;
   grNumber: string;
+  photoUrl: string;
   status: string;
   batch: { name: string; startTime: string; endTime: string } | null;
   today: { status: DayStatus; entryAt: string | null; exitAt: string | null; durationMinutes: number | null } | null;

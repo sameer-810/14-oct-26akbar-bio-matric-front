@@ -21,6 +21,8 @@ interface Props {
   subtitle?: string;
   overline?: string;
   right?: React.ReactNode;
+  /** Before the title — a person's photo. */
+  leading?: React.ReactNode;
   scroll?: boolean;
   refreshing?: boolean;
   onRefresh?: () => void;
@@ -40,6 +42,7 @@ export function Screen({
   title,
   subtitle,
   overline,
+  leading,
   right,
   scroll = true,
   refreshing,
@@ -62,6 +65,7 @@ export function Screen({
         wrap={!isWide}
         style={{ marginBottom: title || subtitle ? 16 : 0 }}
       >
+        {leading ? <View style={{ flexShrink: 0 }}>{leading}</View> : null}
         {/* Shrinks on narrow screens so long subtitles wrap (WCAG 1.4.10). */}
         <VStack
           gap={2}
