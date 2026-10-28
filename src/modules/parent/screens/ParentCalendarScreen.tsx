@@ -144,12 +144,13 @@ export default function ParentCalendarScreen() {
                 {sel ? (
                   <>
                     <Text style={{ color: DAY_COLORS[sel.status].text }}>{DAY_LABELS[sel.status]}</Text>
-                    {sel.entryAt ? (
-                      <Text variant="body-sm" tone="secondary">
-                        Reached {formatTime(sel.entryAt)}
-                        {sel.exitAt ? ` · left ${formatTime(sel.exitAt)}` : ""}
-                        {sel.durationMinutes !== null ? ` · ${hoursAndMinutes(sel.durationMinutes)}` : ""}
+                    {sel.sessions.map((p) => (
+                      <Text key={p.inAt} variant="body-sm" tone="secondary" tabular>
+                        IN {formatTime(p.inAt)} · {p.outAt ? `OUT ${formatTime(p.outAt)}` : "no OUT"}
                       </Text>
+                    ))}
+                    {sel.durationMinutes !== null ? (
+                      <Text variant="body-sm" tone="tertiary">In class {hoursAndMinutes(sel.durationMinutes)}</Text>
                     ) : null}
                   </>
                 ) : (

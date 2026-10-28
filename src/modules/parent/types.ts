@@ -40,7 +40,15 @@ export interface Overview {
 export interface ChildDays {
   counts: Counts;
   percent: number | null;
-  days: { date: string; status: DayStatus; entryAt: string | null; exitAt: string | null; durationMinutes: number | null }[];
+  days: {
+    date: string;
+    status: DayStatus;
+    entryAt: string | null;
+    exitAt: string | null;
+    /** every IN with its OUT (null while inside) — a break in the day makes two */
+    sessions: { inAt: string; outAt: string | null }[];
+    durationMinutes: number | null;
+  }[];
 }
 
 export interface ParentMessage {
