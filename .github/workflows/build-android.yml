@@ -98,6 +98,20 @@ jobs:
             echo "ext=aab" >> "$GITHUB_OUTPUT"
           fi
 
+      # Push notifications on Android need Firebase's google-services.json. It
+      # stays out of this public repo: the repository secret GOOGLE_SERVICES_JSON
+      # holds it, and it is written outside the checkout for app.config.js.
+      - name: Write the Firebase config
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -z "$GOOGLE_SERVICES_JSON" ]; then
+            echo "::error::Repository secret GOOGLE_SERVICES_JSON is missing — phone alerts would not work"
+            exit 1
+          fi
+          printf '%s' "$GOOGLE_SERVICES_JSON" > "$RUNNER_TEMP/google-services.json"
+          echo "GOOGLE_SERVICES_FILE=$RUNNER_TEMP/google-services.json" >> "$GITHUB_ENV"
+
       - name: Build (local — free, no EAS credits)
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
