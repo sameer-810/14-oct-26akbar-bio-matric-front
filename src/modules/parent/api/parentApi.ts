@@ -1,6 +1,6 @@
 import { apiClient } from "@api/apiClient";
 import type { ParentAccount } from "@shared/store/useAuthStore";
-import type { Child, ChildToday, Overview, ChildDays, Leave, Inbox, ParentAppSettings, ParentMessage, FamilyFees, TestResult, FamilyNotice, FamilyDocument, FamilyIssue, IssueCategory } from "../types";
+import type { Child, ChildLecture, ChildProfile, ChildToday, Overview, ChildDays, Leave, Inbox, ParentAppSettings, ParentMessage, FamilyFees, TestResult, FamilyNotice, FamilyDocument, FamilyIssue, IssueCategory } from "../types";
 
 const data = <T>(p: Promise<{ data: { data: T } }>) => p.then((r) => r.data.data);
 
@@ -12,6 +12,9 @@ export const parentApi = Object.freeze({
   overview: (studentId: string) => data<Overview>(apiClient.get(`/parent/children/${studentId}/overview`)),
   days: (studentId: string, from: string, to: string) =>
     data<ChildDays>(apiClient.get(`/parent/children/${studentId}/days`, { params: { from, to } })),
+  lectures: (studentId: string, from: string, to: string) =>
+    data<ChildLecture[]>(apiClient.get(`/parent/children/${studentId}/lectures`, { params: { from, to } })),
+  profile: (studentId: string) => data<ChildProfile>(apiClient.get(`/parent/children/${studentId}/profile`)),
   leaves: (studentId: string) => data<Leave[]>(apiClient.get(`/parent/children/${studentId}/leaves`)),
   applyLeave: (studentId: string, body: { from: string; to: string; reason: string }) =>
     data<Leave>(apiClient.post(`/parent/children/${studentId}/leaves`, body)),

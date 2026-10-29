@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { UserCog } from "lucide-react-native";
@@ -15,21 +15,32 @@ import {
   StatusChip,
   ErrorState,
   Pagination,
+  Select,
   type Column,
 } from "@shared/ui";
 import { formatRelative } from "@shared/format";
-import { useUsers } from "../hooks/useUsers";
+import { useFilters } from "@shared/useFilters";
+import { useUsers, useRoleCatalogue } from "../hooks/useUsers";
 import type { StaffUser } from "../types";
 import type { UsersParamList } from "../UsersNavigator";
 
 export default function UsersScreen() {
   const nav = useNavigation<NativeStackNavigationProp<UsersParamList>>();
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<"active" | "inactive" | "all">("active");
-  const [page, setPage] = useState(1);
+  const { filters, set, reset, isFiltered } = useFilters("users", {
+    search: "",
+    filter: "active" as "active" | "inactive" | "all",
+    role: "",
+    page: 1,
+  });
+  const { search, filter, role, page } = filters;
+  const setSearch = (v: string) => set({ search: v });
+  const setFilter = (v: typeof filter) => set({ filter: v });
+  const setPage = (p: number) => set({ page: p });
+  const roles = useRoleCatalogue();
   const users = useUsers({
     search: search.trim() || undefined,
     active: filter === "all" ? undefined : filter === "active",
+    role: role || undefined,
     page,
   });
 
@@ -75,6 +86,14 @@ export default function UsersScreen() {
             placeholder="Search name, username or phone"
             style={{ flex: 1, minWidth: 220 }}
           />
+          <HStack style={{ minWidth: 180 }}>
+            <Select
+              value={role || null}
+              options={[{ value: "", label: "All roles" }, ...(roles.data?.roles ?? []).map((r) => ({ value: r.role, label: r.label }))]}
+              onChange={(v) => set({ role: v, page: 1 })}
+              placeholder="All roles"
+            />
+          </HStack>
           <ChipsRow
             chips={[
               { key: "active", label: "Active" },
@@ -87,6 +106,7 @@ export default function UsersScreen() {
               setPage(1);
             }}
           />
+          {isFiltered ? <Button label="Clear filters" variant="ghost" size="sm" onPress={reset} /> : null}
         </HStack>
         {users.error ? <ErrorState error={users.error} onRetry={() => void users.refetch()} /> : null}
         <DataTable

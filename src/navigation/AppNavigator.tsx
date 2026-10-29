@@ -14,7 +14,7 @@ import UsersNavigator from "@modules/users/UsersNavigator";
 import AuditTrailScreen from "@modules/audit/screens/AuditTrailScreen";
 import ProfileScreen from "@modules/auth/screens/ProfileScreen";
 import StudentsNavigator from "@modules/students/StudentsNavigator";
-import BatchesScreen from "@modules/academy/screens/BatchesScreen";
+import BatchesNavigator from "@modules/academy/BatchesNavigator";
 import HolidaysScreen from "@modules/academy/screens/HolidaysScreen";
 import SettingsScreen from "@modules/academy/screens/SettingsScreen";
 import FacultyNavigator from "@modules/teachers/FacultyNavigator";
@@ -42,7 +42,7 @@ import { useUnreadInbox } from "@modules/notifications/hooks/useInbox";
 const SCREENS: Record<string, React.ComponentType<object>> = {
   Dashboard: DashboardScreen,
   Students: StudentsNavigator,
-  Batches: BatchesScreen,
+  Batches: BatchesNavigator,
   Faculty: FacultyNavigator,
   Lectures: LecturesNavigator,
   Salary: SalaryReportScreen,
@@ -116,6 +116,8 @@ export default function AppNavigator() {
     <Drawer.Navigator
       initialRouteName={items.some((i) => i.name === "Dashboard") ? "Dashboard" : first}
       drawerContent={drawerContent}
+      // Back returns to the page you came from, not always the dashboard
+      backBehavior="history"
       // around the whole staff app, once: a pop-up for each note that arrives
       layout={({ children, navigation }) => (
         <View style={{ flex: 1 }}>

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient, type QueryKey } from "@tanstack/react-query";
 import { academyApi } from "../api/academyApi";
-import type { InstituteSettings, AcademicYear, Standard, Batch, Holiday } from "../types";
+import type { InstituteSettings, AcademicYear, Standard, Batch, Holiday, BatchStudentQuery } from "../types";
 
 // masters change rarely; every screen reads them, so cache them for a while
 const MASTER = { staleTime: 5 * 60_000 };
@@ -35,6 +35,9 @@ export const useCreateStandard = () => useSave((s: Partial<Standard>) => academy
 export const useUpdateStandard = () =>
   useSave(({ id, ...s }: Partial<Standard> & { id: string }) => academyApi.updateStandard(id, s), [["standards"]]);
 export const useCreateSchool = () => useSave((name: string) => academyApi.createSchool(name), [["schools"]]);
+export const useBatch = (id: string) => useQuery({ queryKey: ["batches", "one", id], queryFn: () => academyApi.batch(id) });
+export const useBatchStudents = (id: string, q: BatchStudentQuery) =>
+  useQuery({ queryKey: ["batches", "students", id, q], queryFn: () => academyApi.batchStudents(id, q), placeholderData: (prev) => prev });
 export const useCreateBatch = () => useSave((b: Partial<Batch>) => academyApi.createBatch(b), [["batches"]]);
 export const useUpdateBatch = () =>
   useSave(({ id, ...b }: Partial<Batch> & { id: string }) => academyApi.updateBatch(id, b), [["batches"]]);

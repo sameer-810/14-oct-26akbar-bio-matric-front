@@ -3,7 +3,7 @@ import type { PunchDays } from "@shared/ui";
 import type { StaffUser, RoleCatalogue, CreateUserInput, UpdateUserInput, Paginated } from "../types";
 
 export const usersApi = Object.freeze({
-  async list(params: { search?: string; active?: boolean; page?: number }): Promise<Paginated<StaffUser>> {
+  async list(params: { search?: string; active?: boolean; role?: string; page?: number }): Promise<Paginated<StaffUser>> {
     const { data } = await apiClient.get("/users", {
       params: { ...params, active: params.active === undefined ? undefined : String(params.active) },
     });

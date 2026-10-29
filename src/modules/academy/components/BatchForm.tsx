@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Card, VStack, HStack, Button, Banner, SectionHeader, TextField, Select, Text, ToggleRow } from "@shared/ui";
 import { apiErrorMessage } from "@api/apiClient";
-import { useStandards, useCreateBatch, useUpdateBatch, useRemoveBatch } from "../hooks/useAcademy";
+import { useStandards, useCreateBatch, useUpdateBatch } from "../hooks/useAcademy";
 import type { Batch, DayKey } from "../types";
 import { DaysPicker } from "./DaysPicker";
 
@@ -16,7 +16,6 @@ export function BatchForm({ batch, onDone }: { batch?: Batch; onDone: () => void
   const standards = useStandards();
   const create = useCreateBatch();
   const update = useUpdateBatch();
-  const remove = useRemoveBatch();
   const [v, setV] = useState({
     name: batch?.name ?? "",
     standardId: batch?.standardId ?? "",
@@ -94,23 +93,6 @@ export function BatchForm({ batch, onDone }: { batch?: Batch; onDone: () => void
         <HStack gap={8}>
           <Button label="Save batch" onPress={save} loading={create.isPending || update.isPending} testID="batch-save" />
           <Button label="Cancel" variant="ghost" onPress={onDone} />
-          {batch && !batch.studentCount ? (
-            <Button
-              label="Delete batch"
-              variant="destructive"
-              loading={remove.isPending}
-              onPress={async () => {
-                setError(null);
-                try {
-                  await remove.mutateAsync(batch.id);
-                  onDone();
-                } catch (err) {
-                  setError(apiErrorMessage(err));
-                }
-              }}
-              testID="batch-delete"
-            />
-          ) : null}
         </HStack>
       </VStack>
     </Card>

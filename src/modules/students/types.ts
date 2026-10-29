@@ -17,6 +17,8 @@ export interface StudentListItem {
   lastName: string;
   /** null: brought over without a batch, still to be placed */
   batchId: string | null;
+  /** batches attended besides the home batch, now (an extra maths group) */
+  extraBatchIds: string[];
   standardId: string;
   status: StudentStatus;
   validTill: string;
@@ -39,6 +41,8 @@ export interface Student extends StudentListItem {
   notes: string;
   academicYearId: string;
   batchHistory: { batchId: string; from: string }[];
+  /** `to` is the last day, inclusive; null while the student is still in it */
+  extraBatches: { batchId: string; from: string; to: string | null }[];
   admissionDate: string;
   leftOn: string | null;
   leftReason: string;

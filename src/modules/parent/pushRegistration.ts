@@ -23,11 +23,11 @@ export async function registerForPush(): Promise<PushState> {
       handleNotification: async () => ({ shouldShowBanner: true, shouldShowList: true, shouldPlaySound: true, shouldSetBadge: false }),
     });
     if (Platform.OS === "android") {
-      // the server sends with channelId "attendance"
+      // the server sends with channelId "attendance"; no `sound` means the phone's
+      // own alert sound (a name here must be a file bundled with the app)
       await Notifications.setNotificationChannelAsync("attendance", {
         name: "Attendance alerts",
         importance: Notifications.AndroidImportance.HIGH,
-        sound: "default",
       });
     }
     let { status } = await Notifications.getPermissionsAsync();
@@ -40,7 +40,8 @@ export async function registerForPush(): Promise<PushState> {
     const { data: token } = await Notifications.getExpoPushTokenAsync({ projectId });
     await parentApi.setPushToken(token);
     return "on";
-  } catch {
-    return "error";
+  } catch (e) {
+    // an Android build without google-services.json cannot get a token at all; say so, not "check the internet"
+    return /FirebaseApp|google-services|FCM|Firebase/i.test(String((e as Error)?.message)) ? "not_configured" : "error";
   }
 }
