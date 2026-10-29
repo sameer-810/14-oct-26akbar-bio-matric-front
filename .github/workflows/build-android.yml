@@ -8,6 +8,9 @@ name: Build Android (.apk / .aab)
 #   • preview    → installable .apk to send to the pilot batch's parents and
 #                  the staff's phones (default — start here)
 #   • production → signed .aab for the Play Store
+#   • device-test → debug .apk for a USB-connected test phone: loads the app
+#                   code from `npx expo start` on the PC (adb reverse tcp:8081
+#                   tcp:8081, tcp:5010 tcp:5010) and talks to a local API
 #
 # Both builds talk to https://bio.fiveminfotech.com
 # (eas.json). Needs the repository secret EXPO_TOKEN.
@@ -20,6 +23,7 @@ on:
         options:
           - preview
           - production
+          - device-test
         default: preview
 
 jobs:
@@ -88,7 +92,7 @@ jobs:
       - name: Pick output extension for the profile
         id: out
         run: |
-          if [ "${{ inputs.profile }}" = "preview" ]; then
+          if [ "${{ inputs.profile }}" != "production" ]; then
             echo "ext=apk" >> "$GITHUB_OUTPUT"
           else
             echo "ext=aab" >> "$GITHUB_OUTPUT"
@@ -146,5 +150,5 @@ jobs:
           gh release create "$TAG" \
             "akbars-academy.${{ steps.out.outputs.ext }}" \
             --title "Android ${{ inputs.profile }} build #${{ github.run_number }}" \
-            --notes "Automated \`eas build --local\` output. Download the .${{ steps.out.outputs.ext }} file below. API: https://bio.fiveminfotech.com" \
+            --notes "Automated \`eas build --local\` output. Download the .${{ steps.out.outputs.ext }} file below. API: as set for the ${{ inputs.profile }} profile in eas.json" \
             --prerelease
