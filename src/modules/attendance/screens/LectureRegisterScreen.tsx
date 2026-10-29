@@ -54,7 +54,6 @@ export default function LectureRegisterScreen({ route, navigation }: Props) {
     <Screen
       title={`${session.subject || "Lecture"} ${session.startTime}–${session.endTime}`}
       overline={formatDay(session.date)}
-      right={<Button label="Back to register" variant="ghost" size="sm" onPress={() => navigation.goBack()} />}
       testID="lecture-register"
     >
       <VStack gap={12}>

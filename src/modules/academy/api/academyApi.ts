@@ -1,5 +1,5 @@
 import { apiClient } from "@api/apiClient";
-import type { InstituteSettings, AcademicYear, Standard, School, Batch, Holiday } from "../types";
+import type { InstituteSettings, AcademicYear, Standard, School, Batch, Holiday, BatchStudent, BatchStudentQuery } from "../types";
 
 const data = <T>(p: Promise<{ data: { data: T } }>) => p.then((r) => r.data.data);
 
@@ -20,6 +20,11 @@ export const academyApi = Object.freeze({
   createSchool: (name: string) => data<School>(apiClient.post("/schools", { name })),
 
   batches: (params: { academicYearId?: string; standardId?: string } = {}) => data<Batch[]>(apiClient.get("/batches", { params })),
+  batch: (id: string) => data<Batch>(apiClient.get(`/batches/${id}`)),
+  batchStudents: async (id: string, q: BatchStudentQuery) => {
+    const { data: body } = await apiClient.get(`/batches/${id}/students`, { params: { ...q, limit: 50 } });
+    return { data: body.data as BatchStudent[], meta: body.meta as { total: number; page: number; pages: number } };
+  },
   createBatch: (b: Partial<Batch>) => data<Batch>(apiClient.post("/batches", b)),
   updateBatch: (id: string, b: Partial<Batch>) => data<Batch>(apiClient.patch(`/batches/${id}`, b)),
   // only a batch that was never used; the server says so otherwise

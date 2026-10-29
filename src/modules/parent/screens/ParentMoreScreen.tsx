@@ -1,7 +1,7 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Award, Megaphone, FileText, CalendarPlus, MessageCircleQuestion, IndianRupee } from "lucide-react-native";
+import { Award, Megaphone, FileText, CalendarPlus, MessageCircleQuestion, IndianRupee, BookOpen, IdCard } from "lucide-react-native";
 
 import { Screen, ListGroup, ListRow, useBreakpoint } from "@shared/ui";
 import { palette } from "@shared/designSystem";
@@ -23,6 +23,10 @@ export default function ParentMoreScreen() {
     <Screen title="More" testID="parent-more">
       <View style={[styles.wrap, isWide && styles.wrapWide]}>
         <ListGroup>
+          {on("lectures") ? (
+            <ListRow title="Lectures" subtitle="The week's timetable, present or absent in each" leading={icon(BookOpen)} onPress={() => nav.navigate("ParentLectures")} showChevron />
+          ) : null}
+          <ListRow title="Profile" subtitle="Your child's details as the academy has them" leading={icon(IdCard)} onPress={() => nav.navigate("ParentProfile")} showChevron />
           {on("fees") ? <ListRow title="Fees" subtitle="What is due, and every receipt" leading={icon(IndianRupee)} onPress={() => nav.navigate("ParentFees")} showChevron /> : null}
           {on("results") ? <ListRow title="Test results" subtitle="Marks, rank and class average" leading={icon(Award)} onPress={() => nav.navigate("ParentResults")} showChevron /> : null}
           <ListRow title="Notice board" subtitle="Holidays, meetings, functions" leading={icon(Megaphone)} onPress={() => nav.navigate("ParentNotices")} showChevron />

@@ -86,6 +86,29 @@ export interface Batch {
   endDate: string | null;
   isActive: boolean;
   studentCount?: number;
+  createdAt: string | null;
+}
+
+/** A student as the batch page lists them: read from the student record, nothing made up. */
+export interface BatchStudent {
+  id: string;
+  grNumber: string;
+  name: string;
+  photoUrl: string;
+  /** home: the batch that judges their day; extra: an added group such as maths */
+  membership: "home" | "extra";
+  /** the day they joined this batch; null for an old record without that day */
+  joinedOn: string | null;
+  validTill: string;
+  schoolName: string;
+  phone: string;
+  status: "active" | "expired" | "left";
+}
+
+export interface BatchStudentQuery {
+  search?: string;
+  status?: "active" | "expired" | "left" | "all";
+  page?: number;
 }
 
 export interface Holiday {

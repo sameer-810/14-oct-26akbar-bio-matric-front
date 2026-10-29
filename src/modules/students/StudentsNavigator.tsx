@@ -5,7 +5,8 @@ import AdmitStudentScreen from "./screens/AdmitStudentScreen";
 import StudentDetailScreen from "./screens/StudentDetailScreen";
 
 export type StudentsParamList = {
-  StudentsList: undefined;
+  /** opened from a batch: the list starts filtered to it */
+  StudentsList: { batchId?: string; standardId?: string } | undefined;
   AdmitStudent: undefined;
   StudentDetail: { id: string };
 };

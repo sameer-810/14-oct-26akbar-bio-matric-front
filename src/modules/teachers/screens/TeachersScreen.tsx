@@ -17,7 +17,9 @@ import {
   EmptyState,
   ErrorState,
   SectionHeader,
+  ChipsRow,
 } from "@shared/ui";
+import { useFilters } from "@shared/useFilters";
 import { palette } from "@shared/designSystem";
 import { PERMISSIONS } from "@shared/permissions";
 import { useAuthStore } from "@shared/store/useAuthStore";
@@ -33,8 +35,17 @@ import type { Teacher } from "../types";
  */
 export default function TeachersScreen() {
   const canManage = useAuthStore((s) => s.hasPermission(PERMISSIONS.TEACHERS_MANAGE));
-  const [search, setSearch] = useState("");
-  const teachers = useTeachers({ search: search.trim() || undefined });
+  const { filters, set, reset, isFiltered } = useFilters("teachers", { search: "", state: "active", subject: "", batchId: "" });
+  const teachers = useTeachers({ search: filters.search.trim() || undefined });
+  const year = useCurrentYear();
+  const batches = useBatches(year ? { academicYearId: year.id } : {});
+  const subjects = [...new Set((teachers.data ?? []).flatMap((t) => t.subjects))].sort();
+  const shown = (teachers.data ?? []).filter(
+    (t) =>
+      (filters.state === "all" || t.isActive === (filters.state === "active")) &&
+      (!filters.subject || t.subjects.includes(filters.subject)) &&
+      (!filters.batchId || t.batchIds.includes(filters.batchId)),
+  );
   const [editing, setEditing] = useState<string | "new" | null>(null);
   const nav = useNavigation<{ navigate: (name: string, params?: object) => void }>();
 
@@ -46,11 +57,47 @@ export default function TeachersScreen() {
       testID="teachers-screen"
     >
       <VStack gap={12}>
-        <SearchInput value={search} onChangeText={setSearch} placeholder="Name, phone or fingerprint ID" />
+        <HStack gap={12} align="center" wrap>
+          <SearchInput
+            value={filters.search}
+            onChangeText={(v) => set({ search: v })}
+            placeholder="Name, phone or fingerprint ID"
+            style={{ flex: 2, minWidth: 220 }}
+          />
+          <HStack style={{ flex: 1, minWidth: 160 }}>
+            <Select
+              value={filters.subject || null}
+              options={[{ value: "", label: "All subjects" }, ...subjects.map((s) => ({ value: s, label: s }))]}
+              onChange={(v) => set({ subject: v })}
+              placeholder="All subjects"
+            />
+          </HStack>
+          <HStack style={{ flex: 1, minWidth: 160 }}>
+            <Select
+              value={filters.batchId || null}
+              options={[{ value: "", label: "All batches" }, ...(batches.data ?? []).map((b) => ({ value: b.id, label: b.name }))]}
+              onChange={(v) => set({ batchId: v })}
+              placeholder="All batches"
+            />
+          </HStack>
+        </HStack>
+        <HStack gap={12} align="center" wrap>
+          <ChipsRow
+            chips={[
+              { key: "active", label: "Active" },
+              { key: "inactive", label: "Inactive" },
+              { key: "all", label: "All" },
+            ]}
+            active={filters.state}
+            onChange={(k) => set({ state: k })}
+          />
+          {isFiltered ? <Button label="Clear filters" variant="ghost" size="sm" onPress={reset} /> : null}
+        </HStack>
         {editing === "new" ? <TeacherForm onDone={() => setEditing(null)} /> : null}
         {teachers.error ? <ErrorState error={teachers.error} onRetry={() => void teachers.refetch()} /> : null}
         {teachers.data?.length === 0 ? <EmptyState icon={UsersRound} title="No faculty yet" /> : null}
-        {(teachers.data ?? []).map((t) =>
+        {(teachers.data?.length ?? 0) > 0 && shown.length === 0 ? <EmptyState icon={UsersRound} title="Nobody matches these filters" /> : null}
+        {shown.map((t) =>
           editing === t.id ? (
             <TeacherForm key={t.id} teacher={t} onDone={() => setEditing(null)} />
           ) : (

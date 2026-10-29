@@ -40,7 +40,13 @@ export const useOverview = (id: string | undefined) =>
 export const useChildDays = (id: string | undefined, from: string, to: string) =>
   useQuery({ queryKey: ["parent", "days", id, from, to], queryFn: () => parentApi.days(id as string, from, to), enabled: Boolean(id) });
 
-export const useChildLeaves = (id: string | undefined) =>
+export const useChildLectures = (id: string | undefined, from: string, to: string) =>
+  useQuery({ queryKey: ["parent", "lectures", id, from, to], queryFn: () => parentApi.lectures(id as string, from, to), enabled: Boolean(id) });
+
+export const useChildProfile = (id: string | undefined) =>
+  useQuery({ queryKey: ["parent", "profile", id], queryFn: () => parentApi.profile(id as string), enabled: Boolean(id) });
+
+export const useChildLeaves =(id: string | undefined) =>
   useQuery({ queryKey: ["parent", "leaves", id], queryFn: () => parentApi.leaves(id as string), enabled: Boolean(id) });
 
 export const useResults = (id: string | undefined, enabled = true) =>

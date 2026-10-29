@@ -36,7 +36,7 @@ import { StudentFeesCard } from "@modules/fees/components/StudentFeesCard";
 import type { StudentsParamList } from "../StudentsNavigator";
 
 type Props = NativeStackScreenProps<StudentsParamList, "StudentDetail">;
-type Panel = "batch" | "extend" | "left" | null;
+type Panel = "batch" | "extra" | "extend" | "left" | null;
 
 export default function StudentDetailScreen({ route, navigation }: Props) {
   const { id } = route.params;
@@ -120,6 +120,9 @@ export default function StudentDetailScreen({ route, navigation }: Props) {
                 <StatusChip status={s.status} />
                 <Text tone="secondary">{batchName(s.batchId)}</Text>
               </HStack>
+              {s.extraBatchIds.length ? (
+                <Fact label="Also in" value={s.extraBatchIds.map(batchName).join(", ")} />
+              ) : null}
               <Fact label="GR number" value={s.grNumber} />
               <Fact label="Fingerprint ID" value={s.biometricId} />
               <Fact label="Admitted" value={formatDay(s.admissionDate)} />
@@ -185,6 +188,9 @@ export default function StudentDetailScreen({ route, navigation }: Props) {
               <SectionHeader title="Changes" />
               <HStack gap={8} wrap>
                 {s.status !== "left" ? <Button label="Change batch" variant="secondary" size="sm" onPress={() => setPanel(panel === "batch" ? null : "batch")} /> : null}
+                {s.status !== "left" ? (
+                  <Button label="Other batches" variant="secondary" size="sm" onPress={() => setPanel(panel === "extra" ? null : "extra")} testID="student-extra-batches" />
+                ) : null}
                 {s.status !== "left" ? <Button label="Extend admission" variant="secondary" size="sm" onPress={() => setPanel(panel === "extend" ? null : "extend")} /> : null}
                 {s.parentAccountId ? (
                   <Button
@@ -215,6 +221,45 @@ export default function StudentDetailScreen({ route, navigation }: Props) {
                     From today. Days before keep the old batch&apos;s timing.
                   </Text>
                   <Button label="Move" disabled={!batchId} onPress={() => run(() => act.changeBatch.mutateAsync({ batchId, from: academyToday() }), "Batch changed.")} />
+                </VStack>
+              ) : null}
+
+              {panel === "extra" ? (
+                <VStack gap={10}>
+                  <Text variant="body-sm" tone="secondary">
+                    Extra batches add their lectures, tests, notices and lists. Daily IN/OUT and absence stay with {batchName(s.batchId)}.
+                  </Text>
+                  {s.extraBatchIds.map((bid) => (
+                    <HStack key={bid} gap={8} align="center">
+                      <Text style={{ flex: 1 }}>{batchName(bid)}</Text>
+                      <Button
+                        label="Remove"
+                        variant="ghost"
+                        size="sm"
+                        fullWidth={false}
+                        accessibilityHint={`Removes the student from ${batchName(bid)} from today`}
+                        onPress={() => run(() => act.removeExtraBatch.mutateAsync({ batchId: bid, from: academyToday() }), `Removed from ${batchName(bid)} from today.`)}
+                      />
+                    </HStack>
+                  ))}
+                  <Select
+                    label="Add to"
+                    value={batchId || null}
+                    options={(batches.data ?? [])
+                      .filter((b) => b.id !== s.batchId && !s.extraBatchIds.includes(b.id) && b.isActive)
+                      .map((b) => ({ value: b.id, label: b.name, sublabel: `${b.startTime}–${b.endTime}` }))}
+                    onChange={setBatchId}
+                    placeholder="Choose a batch"
+                  />
+                  <Button
+                    label="Add"
+                    disabled={!batchId}
+                    onPress={() => run(async () => {
+                      await act.addExtraBatch.mutateAsync({ batchId, from: academyToday() });
+                      setBatchId("");
+                    }, "Added to the batch from today.")}
+                    testID="student-extra-add"
+                  />
                 </VStack>
               ) : null}
 

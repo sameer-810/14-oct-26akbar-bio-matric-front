@@ -17,8 +17,11 @@ import {
   Skeleton,
   ErrorState,
   SectionHeader,
+  SearchInput,
+  ChipsRow,
   useBreakpoint,
 } from "@shared/ui";
+import { useFilters } from "@shared/useFilters";
 import { palette, radius } from "@shared/designSystem";
 import { PERMISSIONS } from "@shared/permissions";
 import { useAuthStore } from "@shared/store/useAuthStore";
@@ -54,6 +57,14 @@ export default function RegisterScreen({ route, navigation }: Props) {
   const activeBatch = batchId ?? batches.data?.[0]?.id ?? null;
   const reg = useRegister(activeBatch, date);
   const act = useAttendanceActions();
+  const { filters, set, reset, isFiltered } = useFilters("register", { search: "", status: "all" });
+  const needle = filters.search.trim().toLowerCase();
+  const rows = (reg.data?.rows ?? []).filter(
+    (r) =>
+      (!needle || `${r.name} ${r.grNumber}`.toLowerCase().includes(needle)) &&
+      (filters.status === "all" ||
+        (filters.status === "notyet" ? !r.status : filters.status === "manual" ? r.source === "manual" : r.status === filters.status)),
+  );
 
   return (
     <Screen title="Registers" subtitle={formatDay(date)} testID="register-screen">
@@ -137,6 +148,30 @@ export default function RegisterScreen({ route, navigation }: Props) {
               </VStack>
             </Card>
 
+            <HStack gap={12} align="center" wrap>
+              <SearchInput
+                value={filters.search}
+                onChangeText={(v) => set({ search: v })}
+                placeholder="Student name or GR"
+                style={{ flex: 1, minWidth: 200 }}
+                testID="register-search"
+              />
+              <ChipsRow
+                chips={[
+                  { key: "all", label: "Everyone" },
+                  { key: "present", label: "Present" },
+                  { key: "late", label: "Late" },
+                  { key: "absent", label: "Absent" },
+                  { key: "leave", label: "On leave" },
+                  { key: "notyet", label: "Not yet" },
+                  { key: "manual", label: "Set by hand" },
+                ]}
+                active={filters.status}
+                onChange={(k) => set({ status: k })}
+              />
+              {isFiltered ? <Button label="Clear filters" variant="ghost" size="sm" onPress={reset} /> : null}
+            </HStack>
+
             <Card>
               <VStack gap={0}>
                 {isWide ? (
@@ -149,7 +184,7 @@ export default function RegisterScreen({ route, navigation }: Props) {
                     <Text variant="label" tone="tertiary" style={{ width: 90 }}>In class</Text>
                   </HStack>
                 ) : null}
-                {reg.data.rows.map((r) => (
+                {rows.map((r) => (
                   <View key={r.studentId}>
                     <Pressable
                       onPress={() => canCorrect && setOpen(open === r.studentId ? null : r.studentId)}
@@ -174,6 +209,7 @@ export default function RegisterScreen({ route, navigation }: Props) {
                   </View>
                 ))}
                 {reg.data.rows.length === 0 ? <Text tone="tertiary">Nobody in this batch on this day.</Text> : null}
+                {reg.data.rows.length > 0 && rows.length === 0 ? <Text tone="tertiary">Nobody matches these filters.</Text> : null}
               </VStack>
             </Card>
           </>

@@ -10,7 +10,10 @@ import {
   StyleProp,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useIsFocused, useNavigation, type NavigationProp, type ParamListBase } from "@react-navigation/native";
+import { ArrowLeft } from "lucide-react-native";
 import { palette, layout } from "../designSystem";
+import { Button } from "./Button";
 import { Text } from "./Text";
 import { HStack, VStack } from "./Stack";
 import { useBreakpoint } from "./useBreakpoint";
@@ -36,6 +39,21 @@ interface Props {
   testID?: string;
 }
 
+type Nav = NavigationProp<ParamListBase>;
+
+/** The nearest sidebar or tab navigator's first page, and whether it is open now. */
+function homeOf(navigation: Nav) {
+  for (let n: Nav | undefined = navigation; n; n = n.getParent()) {
+    const s = n.getState();
+    if (s && (s.type === "drawer" || s.type === "tab")) {
+      const name = s.routeNames[0];
+      const nav = n;
+      return { tabs: s.type === "tab", here: s.routes[s.index]?.name === name, go: () => nav.navigate(name) };
+    }
+  }
+  return null;
+}
+
 /** Screen container: identity band outside the scroll, content capped at `contentMaxWidth`. */
 export function Screen({
   children,
@@ -55,6 +73,27 @@ export function Screen({
 }: Props) {
   const insets = useSafeAreaInsets();
   const { isWide, screenPadding } = useBreakpoint();
+  const navigation = useNavigation<Nav>();
+  useIsFocused(); // re-render on focus, so the history below is current
+  // a page opened by link or reload has no history: Back then goes to the app's home page
+  const home = homeOf(navigation);
+  const goBack = () => (navigation.canGoBack() ? navigation.goBack() : home?.go());
+  const own = navigation.getState();
+  const atSectionRoot = own?.type !== "stack" || own.index === 0;
+  // a tab's own page needs no Back: the tab bar is right there
+  const onHome = atSectionRoot && (home?.here || home?.tabs);
+  const back = !onHome && (navigation.canGoBack() || home) ? (
+    <Button
+      label="Back"
+      variant="ghost"
+      size="sm"
+      fullWidth={false}
+      icon={<ArrowLeft size={16} color={palette.text.secondary} />}
+      onPress={goBack}
+      style={{ alignSelf: "flex-start", marginBottom: 8, marginLeft: -10 }}
+      testID="screen-back"
+    />
+  ) : null;
 
   const header =
     title || overline || right ? (
@@ -109,6 +148,7 @@ export function Screen({
         contentStyle,
       ]}
     >
+      {back}
       {header}
       {children}
     </View>

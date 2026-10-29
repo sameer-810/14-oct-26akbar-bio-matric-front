@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Fingerprint } from "lucide-react-native";
-import { Screen, VStack, HStack, Text, DataTable, ChipsRow, TextField, StatusChip, ErrorState, type Column } from "@shared/ui";
+import { Screen, VStack, HStack, Text, Button, DataTable, ChipsRow, TextField, StatusChip, ErrorState, SearchInput, Select, type Column } from "@shared/ui";
+import { useFilters } from "@shared/useFilters";
 import { academyToday, formatTime, formatDateTime } from "@shared/format";
 import { usePunches } from "../hooks/useAttendance";
 import type { PunchRow } from "../types";
@@ -12,8 +13,17 @@ import type { PunchRow } from "../types";
  */
 export default function PunchesScreen() {
   const [date, setDate] = useState(academyToday());
-  const [who, setWho] = useState("all");
+  const { filters, set, reset, isFiltered } = useFilters("punches", { who: "all", search: "", kind: "", source: "" });
+  const { who } = filters;
   const punches = usePunches({ date, personType: who === "all" ? undefined : who });
+  const needle = filters.search.trim().toLowerCase();
+  // one day's punches are a few hundred rows at most: filtered here, not on the server
+  const rows = (punches.data ?? []).filter(
+    (p) =>
+      (!needle || `${p.name ?? ""} ${p.grNumber ?? ""} ${p.biometricId}`.toLowerCase().includes(needle)) &&
+      (!filters.kind || (filters.kind === "none" ? !p.kind : p.kind === filters.kind)) &&
+      (!filters.source || (filters.source === "manual" ? p.source === "manual" : p.source !== "manual")),
+  );
 
   const columns: Column<PunchRow>[] = [
     { key: "at", header: "Time", width: 90, render: (p) => <Text variant="body-sm" tabular>{formatTime(p.at)}</Text> },
@@ -58,16 +68,54 @@ export default function PunchesScreen() {
               { key: "unknown", label: "Unknown IDs" },
             ]}
             active={who}
-            onChange={setWho}
+            onChange={(k) => set({ who: k })}
           />
+        </HStack>
+        <HStack gap={12} align="center" wrap>
+          <SearchInput
+            value={filters.search}
+            onChangeText={(v) => set({ search: v })}
+            placeholder="Name, GR or fingerprint ID"
+            style={{ flex: 2, minWidth: 220 }}
+            testID="punches-search"
+          />
+          <HStack style={{ flex: 1, minWidth: 160 }}>
+            <Select
+              value={filters.kind || null}
+              options={[
+                { value: "", label: "Counted as: any" },
+                { value: "entry", label: "IN" },
+                { value: "exit", label: "OUT" },
+                { value: "between", label: "Between" },
+                { value: "duplicate", label: "Repeat" },
+                { value: "ignored", label: "Ignored" },
+                { value: "none", label: "Not counted" },
+              ]}
+              onChange={(v) => set({ kind: v })}
+              placeholder="Counted as: any"
+            />
+          </HStack>
+          <HStack style={{ flex: 1, minWidth: 160 }}>
+            <Select
+              value={filters.source || null}
+              options={[
+                { value: "", label: "Any source" },
+                { value: "device", label: "Fingerprint machine" },
+                { value: "manual", label: "Entered by hand" },
+              ]}
+              onChange={(v) => set({ source: v })}
+              placeholder="Any source"
+            />
+          </HStack>
+          {isFiltered ? <Button label="Clear filters" variant="ghost" size="sm" onPress={reset} /> : null}
         </HStack>
         {punches.error ? <ErrorState error={punches.error} onRetry={() => void punches.refetch()} /> : null}
         <DataTable
           columns={columns}
-          rows={punches.data ?? []}
+          rows={rows}
           keyExtractor={(p) => p.id}
           emptyIcon={Fingerprint}
-          emptyTitle={punches.isLoading ? "Loading…" : "No punches"}
+          emptyTitle={punches.isLoading ? "Loading…" : isFiltered ? "No punch matches these filters" : "No punches"}
           testID="punches-table"
         />
       </VStack>

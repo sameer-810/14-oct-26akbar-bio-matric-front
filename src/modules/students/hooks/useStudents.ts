@@ -46,6 +46,8 @@ export function useStudentActions(id: string) {
   const invalidate = useInvalidateStudent(id);
   return {
     changeBatch: useMutation({ mutationFn: (v: { batchId: string; from?: string }) => studentsApi.changeBatch(id, v.batchId, v.from), onSuccess: invalidate }),
+    addExtraBatch: useMutation({ mutationFn: (v: { batchId: string; from?: string }) => studentsApi.addExtraBatch(id, v.batchId, v.from), onSuccess: invalidate }),
+    removeExtraBatch: useMutation({ mutationFn: (v: { batchId: string; from?: string }) => studentsApi.removeExtraBatch(id, v.batchId, v.from), onSuccess: invalidate }),
     extend: useMutation({ mutationFn: (validTill: string) => studentsApi.extend(id, validTill), onSuccess: invalidate }),
     markLeft: useMutation({ mutationFn: (v: { reason?: string; removeFromDevices?: boolean }) => studentsApi.markLeft(id, v), onSuccess: invalidate }),
     resend: useMutation({ mutationFn: () => studentsApi.resendToDevices(id), onSuccess: invalidate }),

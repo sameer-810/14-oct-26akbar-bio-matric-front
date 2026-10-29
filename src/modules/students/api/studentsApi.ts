@@ -5,6 +5,8 @@ export interface StudentQuery {
   search?: string;
   batchId?: string;
   status?: StudentStatus;
+  standardId?: string;
+  fingerprint?: "on" | "missing";
   page?: number;
 }
 
@@ -24,6 +26,12 @@ export const studentsApi = Object.freeze({
   },
   async changeBatch(id: string, batchId: string, from?: string): Promise<Student> {
     return (await apiClient.post(`/students/${id}/change-batch`, { batchId, from })).data.data;
+  },
+  async addExtraBatch(id: string, batchId: string, from?: string): Promise<Student> {
+    return (await apiClient.put(`/students/${id}/extra-batches/${batchId}`, { from })).data.data;
+  },
+  async removeExtraBatch(id: string, batchId: string, from?: string): Promise<Student> {
+    return (await apiClient.delete(`/students/${id}/extra-batches/${batchId}`, { data: { from } })).data.data;
   },
   async extend(id: string, validTill: string): Promise<Student> {
     return (await apiClient.post(`/students/${id}/extend`, { validTill })).data.data;

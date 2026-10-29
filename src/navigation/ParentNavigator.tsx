@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Platform } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { House, CalendarDays, Bell, LayoutGrid, UserRound } from "lucide-react-native";
 
 import { palette } from "@shared/designSystem";
@@ -21,6 +22,8 @@ const Tab = createBottomTabNavigator();
  */
 export default function ParentNavigator() {
   const unread = useInbox().data?.unread ?? 0;
+  // no header on these tabs, so keep each page clear of the phone's status bar
+  const { top } = useSafeAreaInsets();
   useKeepChildSelected();
 
   // on a phone, ask for alerts once after sign-in; the Account tab can ask again
@@ -36,7 +39,7 @@ export default function ParentNavigator() {
         tabBarInactiveTintColor: palette.text.tertiary,
         tabBarStyle: { backgroundColor: palette.surface.primary, borderTopColor: palette.border.default },
         tabBarLabelStyle: { fontFamily: "Inter_500Medium", fontSize: 11 },
-        sceneStyle: { backgroundColor: palette.surface.secondary },
+        sceneStyle: { backgroundColor: palette.surface.secondary, paddingTop: top },
       }}
     >
       <Tab.Screen

@@ -141,3 +141,34 @@ export interface FamilyIssue {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface ChildLecture {
+  id: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  subject: string;
+  topics: string;
+  teacher: string;
+  cancelled: boolean;
+  cancelReason: string;
+  status: "present" | "absent" | null;
+}
+
+export interface ChildProfile {
+  id: string;
+  name: string;
+  grNumber: string;
+  photoUrl: string;
+  gender: string;
+  dateOfBirth: string | null;
+  phone: string;
+  email: string;
+  schoolName: string;
+  address: { line1?: string; landmark?: string; city?: string; state?: string; pincode?: string };
+  admissionDate: string;
+  batch: { name: string; startTime: string; endTime: string } | null;
+  /** extra batches attended besides the home batch, e.g. a maths group */
+  otherBatches: string[];
+  guardians: { relation: string; name: string; phone: string; email: string }[];
+}
