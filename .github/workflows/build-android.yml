@@ -114,6 +114,8 @@ jobs:
       # microphone or location permission on a children's attendance app means
       # Play review questions and a Data safety declaration nobody wants.
       - name: Verify no blocked permission survived the merge
+        # a debug build carries SYSTEM_ALERT_WINDOW for React Native's developer menu; it is never shipped
+        if: inputs.profile != 'device-test'
         run: |
           BT=1.17.2
           curl -sL -o /tmp/bundletool.jar \
