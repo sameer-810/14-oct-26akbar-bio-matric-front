@@ -107,7 +107,7 @@ export function PaymentForm({ studentId, summary, onCancel, onPaid }: Props) {
           label="Date"
           value={date}
           onChangeText={setDate}
-          placeholder="YYYY-MM-DD"
+          date placeholder="YYYY-MM-DD"
           error={errors.date}
           hint="Today, or a few days back at most"
           containerStyle={{ flex: 1, minWidth: 140 }}
@@ -153,7 +153,7 @@ export function PaymentForm({ studentId, summary, onCancel, onPaid }: Props) {
             label="Cheque date"
             value={chequeDate}
             onChangeText={setChequeDate}
-            placeholder="YYYY-MM-DD"
+            date placeholder="YYYY-MM-DD"
             error={show(errors.chequeDate, chequeDate)}
             containerStyle={{ flex: 1, minWidth: 140 }}
             testID="fees-cheque-date"

@@ -71,7 +71,7 @@ export default function HolidaysScreen() {
             <VStack gap={12}>
               <SectionHeader title="Add a holiday" />
               <HStack gap={12} wrap>
-                <TextField label="Date" value={form.date} onChangeText={(t) => setForm({ ...form, date: t })} placeholder="YYYY-MM-DD" containerStyle={{ flex: 1, minWidth: 150 }} testID="holiday-date" />
+                <TextField label="Date" value={form.date} onChangeText={(t) => setForm({ ...form, date: t })} date placeholder="YYYY-MM-DD" containerStyle={{ flex: 1, minWidth: 150 }} testID="holiday-date" />
                 <TextField label="Name" value={form.name} onChangeText={(t) => setForm({ ...form, name: t })} placeholder="Diwali" containerStyle={{ flex: 2, minWidth: 200 }} testID="holiday-name" />
               </HStack>
               <ToggleRow label="Every batch" value={form.allBatches} onChange={(b) => setForm({ ...form, allBatches: b })} />

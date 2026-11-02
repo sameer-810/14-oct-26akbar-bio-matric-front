@@ -55,7 +55,7 @@ export default function ParentLeaveScreen() {
                     label="From"
                     value={form.from}
                     onChangeText={(t) => setForm({ ...form, from: t })}
-                    placeholder="YYYY-MM-DD"
+                    date placeholder="YYYY-MM-DD"
                     containerStyle={{ flex: 1, minWidth: 140 }}
                     testID="leave-from"
                   />

@@ -144,7 +144,7 @@ function HandlePanel({ issue: i, canManage }: { issue: Issue; canManage: boolean
               label="Due on"
               value={due}
               onChangeText={setDue}
-              placeholder="YYYY-MM-DD"
+              date placeholder="YYYY-MM-DD"
               error={dueValid ? undefined : "Write it as YYYY-MM-DD"}
               containerStyle={{ width: 160 }}
               testID="issue-due"

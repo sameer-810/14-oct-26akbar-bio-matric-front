@@ -213,7 +213,7 @@ export function PlanForm({ academicYearId, yearStart, plan, onDone }: Props) {
             <TextField
               value={it.dueDate}
               onChangeText={(t) => setInst(n, { dueDate: t })}
-              placeholder="YYYY-MM-DD"
+              date placeholder="YYYY-MM-DD"
               accessibilityLabel={`Instalment ${n + 1} due date`}
               containerStyle={{ flex: 1, minWidth: 130 }}
               testID={`plan-inst-date-${n}`}

@@ -95,7 +95,7 @@ export function ExpenseForm({ onSaved, onClose }: { onSaved: (e: Expense) => voi
             label="Date"
             value={date}
             onChangeText={setDate}
-            placeholder="YYYY-MM-DD"
+            date placeholder="YYYY-MM-DD"
             error={errors.date}
             hint={backdateDays !== undefined ? `Today, or up to ${backdateDays} day(s) back` : undefined}
             containerStyle={{ width: 170 }}

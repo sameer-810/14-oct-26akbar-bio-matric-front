@@ -129,8 +129,8 @@ export function StudentAttendanceCard({ studentId, canManage }: { studentId: str
         {canManage ? (
           form ? (
             <HStack gap={8} wrap align="flex-end">
-              <TextField label="From" value={form.from} onChangeText={(t) => setForm({ ...form, from: t })} placeholder="YYYY-MM-DD" containerStyle={{ width: 140 }} />
-              <TextField label="To" value={form.to} onChangeText={(t) => setForm({ ...form, to: t })} placeholder="YYYY-MM-DD" containerStyle={{ width: 140 }} />
+              <TextField label="From" value={form.from} onChangeText={(t) => setForm({ ...form, from: t })} date placeholder="YYYY-MM-DD" containerStyle={{ width: 140 }} />
+              <TextField label="To" value={form.to} onChangeText={(t) => setForm({ ...form, to: t })} date placeholder="YYYY-MM-DD" containerStyle={{ width: 140 }} />
               <TextField label="Reason" value={form.reason} onChangeText={(t) => setForm({ ...form, reason: t })} containerStyle={{ flex: 1, minWidth: 140 }} />
               <Button
                 label="Add leave"

@@ -80,7 +80,7 @@ export function AdmitPanel({ lead: l, onAdmitted }: { lead: Enquiry; onAdmitted:
             label="Admission date"
             value={admissionDate}
             onChangeText={setAdmissionDate}
-            placeholder="YYYY-MM-DD (today if empty)"
+            date placeholder="YYYY-MM-DD (today if empty)"
             error={dateOk ? undefined : "Write it as YYYY-MM-DD"}
             containerStyle={{ flex: 1, minWidth: 180 }}
             testID="enquiry-admission-date"

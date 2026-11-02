@@ -266,12 +266,12 @@ function DayBookTab() {
   return (
     <VStack gap={12}>
       <HStack gap={10} wrap align="flex-start">
-        <TextField label="From" value={from} onChangeText={setFrom} placeholder="YYYY-MM-DD" error={isDay(from) ? undefined : "YYYY-MM-DD"} containerStyle={styles.dateField} testID="fees-daybook-from" />
+        <TextField label="From" value={from} onChangeText={setFrom} date placeholder="YYYY-MM-DD" error={isDay(from) ? undefined : "YYYY-MM-DD"} containerStyle={styles.dateField} testID="fees-daybook-from" />
         <TextField
           label="To"
           value={to}
           onChangeText={setTo}
-          placeholder="YYYY-MM-DD"
+          date placeholder="YYYY-MM-DD"
           error={!isDay(to) ? "YYYY-MM-DD" : isDay(from) && from > to ? "Before the start" : undefined}
           containerStyle={styles.dateField}
           testID="fees-daybook-to"

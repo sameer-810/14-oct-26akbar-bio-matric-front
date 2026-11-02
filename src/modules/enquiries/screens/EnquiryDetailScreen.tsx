@@ -316,7 +316,7 @@ function FollowUps({ lead: l }: { lead: Enquiry }) {
             </Text>
             <TextField label="What to do" value={title} onChangeText={setTitle} placeholder="Call back after the demo lecture" maxLength={140} testID="followup-title" />
             <HStack gap={12} wrap align="flex-end">
-              <TextField label="Date" value={date} onChangeText={setDate} placeholder="YYYY-MM-DD" containerStyle={{ flex: 1, minWidth: 140 }} testID="followup-date" />
+              <TextField label="Date" value={date} onChangeText={setDate} date placeholder="YYYY-MM-DD" containerStyle={{ flex: 1, minWidth: 140 }} testID="followup-date" />
               <TextField label="Time" value={time} onChangeText={setTime} placeholder="HH:MM" containerStyle={{ flex: 1, minWidth: 110 }} testID="followup-time" />
               <Button label="Add follow-up" size="sm" fullWidth={false} onPress={add} loading={act.addTask.isPending} disabled={!valid} testID="followup-add" />
             </HStack>

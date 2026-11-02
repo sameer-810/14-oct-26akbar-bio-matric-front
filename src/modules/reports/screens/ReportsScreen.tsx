@@ -185,8 +185,8 @@ export default function ReportsScreen() {
                 ) : null}
                 {needs.range ? (
                   <>
-                    <TextField label="From" value={from} onChangeText={setFrom} placeholder="YYYY-MM-DD" containerStyle={{ width: 150 }} testID="report-from" />
-                    <TextField label="To" value={to} onChangeText={setTo} placeholder="YYYY-MM-DD" containerStyle={{ width: 150 }} testID="report-to" />
+                    <TextField label="From" value={from} onChangeText={setFrom} date placeholder="YYYY-MM-DD" containerStyle={{ width: 150 }} testID="report-from" />
+                    <TextField label="To" value={to} onChangeText={setTo} date placeholder="YYYY-MM-DD" containerStyle={{ width: 150 }} testID="report-to" />
                   </>
                 ) : null}
                 {needs.punches ? (

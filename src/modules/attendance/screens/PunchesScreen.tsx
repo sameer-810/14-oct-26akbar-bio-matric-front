@@ -80,12 +80,12 @@ export default function PunchesScreen() {
     <Screen title="Punches" subtitle="Straight from the fingerprint machines" testID="punches-screen">
       <VStack gap={12}>
         <HStack gap={12} align="flex-end" wrap>
-          <TextField label="From Date" value={from} onChangeText={setFrom} placeholder="YYYY-MM-DD" containerStyle={{ width: 150 }} testID="punches-from" />
-          <TextField label="To Date" value={to} onChangeText={setTo} placeholder="YYYY-MM-DD" containerStyle={{ width: 150 }} testID="punches-to" />
+          <TextField label="From Date" value={from} onChangeText={setFrom} date placeholder="YYYY-MM-DD" containerStyle={{ width: 150 }} testID="punches-from" />
+          <TextField label="To Date" value={to} onChangeText={setTo} date placeholder="YYYY-MM-DD" containerStyle={{ width: 150 }} testID="punches-to" />
           <Button label="Apply" size="sm" disabled={!validRange} onPress={() => set({ from, to, page: 1 })} testID="punches-apply" />
           <Button label="Reset" variant="secondary" size="sm" onPress={resetAll} testID="punches-reset" />
         </HStack>
-        {!validRange ? <Banner tone="warning" message="Enter both dates as YYYY-MM-DD, with From on or before To." /> : null}
+        {!validRange ? <Banner tone="warning" message="Pick both dates, with From on or before To." /> : null}
         <ChipsRow
           chips={[
             { key: "all", label: "Everyone" },

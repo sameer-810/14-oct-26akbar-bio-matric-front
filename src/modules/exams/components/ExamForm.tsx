@@ -133,7 +133,7 @@ export function ExamForm({ onDone }: { onDone: (created?: Exam) => void }) {
             label="Date"
             value={v.date}
             onChangeText={(t) => setV({ ...v, date: t })}
-            placeholder="YYYY-MM-DD"
+            date placeholder="YYYY-MM-DD"
             containerStyle={{ width: 150 }}
             testID="exam-date"
           />

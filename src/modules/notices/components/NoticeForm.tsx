@@ -78,7 +78,7 @@ export function NoticeForm({ notice, onDone }: { notice?: Notice; onDone: (messa
           label="Last day it shows"
           value={v.expiresOn}
           onChangeText={(t) => setV({ ...v, expiresOn: t })}
-          placeholder="YYYY-MM-DD (optional)"
+          date placeholder="YYYY-MM-DD (optional)"
           hint="Leave empty to keep it until it is removed."
           containerStyle={{ maxWidth: 260 }}
           testID={id("expires")}
