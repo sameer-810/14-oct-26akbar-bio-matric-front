@@ -117,7 +117,7 @@ export default function EnquiryFormScreen({ navigation }: Props) {
               onChange={set("gender")}
             />
             <HStack gap={12} wrap>
-              <TextField label="Date of birth" value={v.dateOfBirth} onChangeText={set("dateOfBirth")} placeholder="YYYY-MM-DD" error={errors.dateOfBirth} containerStyle={col} testID="enquiry-dob" />
+              <TextField label="Date of birth" value={v.dateOfBirth} onChangeText={set("dateOfBirth")} date placeholder="YYYY-MM-DD" error={errors.dateOfBirth} containerStyle={col} testID="enquiry-dob" />
               <View style={col} testID="enquiry-standard">
                 <Select
                   label="Standard interested in"
@@ -247,7 +247,7 @@ export default function EnquiryFormScreen({ navigation }: Props) {
               testID="enquiry-followup-title"
             />
             <HStack gap={12} wrap>
-              <TextField label="Date" value={v.followUpDate} onChangeText={set("followUpDate")} placeholder="YYYY-MM-DD" error={errors.followUpDate} containerStyle={col} testID="enquiry-followup-date" />
+              <TextField label="Date" value={v.followUpDate} onChangeText={set("followUpDate")} date placeholder="YYYY-MM-DD" error={errors.followUpDate} containerStyle={col} testID="enquiry-followup-date" />
               <TextField label="Time" value={v.followUpTime} onChangeText={set("followUpTime")} placeholder="HH:MM" error={errors.followUpTime} containerStyle={col} testID="enquiry-followup-time" />
             </HStack>
             <Text variant="caption" tone="tertiary">

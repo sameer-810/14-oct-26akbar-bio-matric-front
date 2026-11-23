@@ -81,7 +81,7 @@ export function LectureForm({
                 placeholder="Choose a batch"
               />
             </VStack>
-            <TextField label="Date" value={v.date} onChangeText={(t) => setV({ ...v, date: t })} placeholder="YYYY-MM-DD" containerStyle={{ width: 150 }} testID="lecture-date" />
+            <TextField label="Date" value={v.date} onChangeText={(t) => setV({ ...v, date: t })} date placeholder="YYYY-MM-DD" containerStyle={{ width: 150 }} testID="lecture-date" />
           </HStack>
         ) : null}
         <HStack gap={12} wrap>

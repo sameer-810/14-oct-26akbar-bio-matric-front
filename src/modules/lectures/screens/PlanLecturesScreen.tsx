@@ -79,8 +79,8 @@ export default function PlanLecturesScreen() {
               placeholder="Choose a batch"
             />
             <HStack gap={12} wrap>
-              <TextField label="From" value={from} onChangeText={setFrom} placeholder="YYYY-MM-DD" containerStyle={{ flex: 1, minWidth: 140 }} testID="plan-from" />
-              <TextField label="To" value={to} onChangeText={setTo} placeholder="YYYY-MM-DD" containerStyle={{ flex: 1, minWidth: 140 }} testID="plan-to" />
+              <TextField label="From" value={from} onChangeText={setFrom} date placeholder="YYYY-MM-DD" containerStyle={{ flex: 1, minWidth: 140 }} testID="plan-from" />
+              <TextField label="To" value={to} onChangeText={setTo} date placeholder="YYYY-MM-DD" containerStyle={{ flex: 1, minWidth: 140 }} testID="plan-to" />
             </HStack>
           </VStack>
         </Card>

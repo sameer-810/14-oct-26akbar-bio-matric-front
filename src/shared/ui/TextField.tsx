@@ -4,12 +4,13 @@ import {
   TextInput,
   TextInputProps,
   StyleSheet,
+  Platform,
   Pressable,
   ViewStyle,
   StyleProp,
 } from "react-native";
 import { Eye, EyeOff } from "lucide-react-native";
-import { palette, radius, numeric } from "../designSystem";
+import { palette, radius, numeric, fonts } from "../designSystem";
 import { Text } from "./Text";
 import { HStack, VStack } from "./Stack";
 import { useControlHeight } from "./useBreakpoint";
@@ -30,7 +31,23 @@ interface Props extends Omit<TextInputProps, "style"> {
   prefix?: string;
   containerStyle?: StyleProp<ViewStyle>;
   multiline?: boolean;
+  /** A "YYYY-MM-DD" value: on web the browser's calendar picker, phones keep typing. */
+  date?: boolean;
 }
+
+// React Native Web forces type="text" on every render, so on web a date is a
+// plain <input type="date">, which reads and writes exactly "YYYY-MM-DD".
+const webDateStyle = {
+  flex: 1,
+  minWidth: 0,
+  height: "100%",
+  border: "none",
+  outline: "none",
+  background: "transparent",
+  fontSize: 14,
+  fontFamily: fonts.bodyRegular,
+  color: palette.text.primary,
+};
 
 export function TextField({
   label,
@@ -45,6 +62,7 @@ export function TextField({
   containerStyle,
   multiline,
   secureTextEntry,
+  date,
   ...rest
 }: Props) {
   const [focused, setFocused] = useState(false);
@@ -101,6 +119,20 @@ export function TextField({
           </Text>
         ) : null}
 
+        {date && Platform.OS === "web" ? (
+          React.createElement("input", {
+            type: "date",
+            value: rest.value ?? "",
+            onChange: (e: { target: { value: string } }) => rest.onChangeText?.(e.target.value),
+            onFocus: () => setFocused(true),
+            onBlur: () => setFocused(false),
+            "aria-label": rest.accessibilityLabel ?? label,
+            "aria-invalid": Boolean(error) || undefined,
+            "aria-describedby": error || hint ? messageId : undefined,
+            "data-testid": rest.testID,
+            style: webDateStyle,
+          })
+        ) : (
         <TextInput
           {...rest}
           multiline={multiline}
@@ -132,6 +164,7 @@ export function TextField({
             multiline ? { textAlignVertical: "top", minHeight: 70 } : null,
           ]}
         />
+        )}
 
         {suffix ? (
           <Text

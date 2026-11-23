@@ -241,7 +241,7 @@ export function RefundForm({ studentId, summary, onCancel, onDone }: { studentId
           label="Date"
           value={date}
           onChangeText={setDate}
-          placeholder="YYYY-MM-DD"
+          date placeholder="YYYY-MM-DD"
           error={errors.date}
           containerStyle={{ flex: 1, minWidth: 140 }}
           testID="fees-refund-date"

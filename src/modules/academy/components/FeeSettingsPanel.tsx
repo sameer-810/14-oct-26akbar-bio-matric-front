@@ -70,7 +70,7 @@ export function FeeSettingsPanel({ settings }: { settings: InstituteSettings }) 
           ))}
           <HStack gap={8} wrap align="flex-end">
             <TextField label="GST %" value={rate.percent} onChangeText={(t) => setRate({ ...rate, percent: t })} keyboardType="decimal-pad" containerStyle={{ width: 100 }} testID="fees-gst-percent" />
-            <TextField label="From" value={rate.from} onChangeText={(t) => setRate({ ...rate, from: t })} placeholder="YYYY-MM-DD" containerStyle={{ width: 150 }} testID="fees-gst-from" />
+            <TextField label="From" value={rate.from} onChangeText={(t) => setRate({ ...rate, from: t })} date placeholder="YYYY-MM-DD" containerStyle={{ width: 150 }} testID="fees-gst-from" />
             <Button label="Add rate" variant="secondary" size="sm" onPress={addRate} testID="fees-gst-add" />
           </HStack>
         </VStack>

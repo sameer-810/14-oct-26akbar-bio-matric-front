@@ -55,8 +55,8 @@ export function YearsPanel() {
           <SectionHeader title="Add a year" />
           <TextField label="Year" value={form.label} onChangeText={onLabel} placeholder="2027-2028" testID="year-label" />
           <HStack gap={12} wrap>
-            <TextField label="Starts" value={form.startDate} onChangeText={(t) => setForm({ ...form, startDate: t })} placeholder="YYYY-MM-DD" containerStyle={{ flex: 1, minWidth: 160 }} />
-            <TextField label="Ends" value={form.endDate} onChangeText={(t) => setForm({ ...form, endDate: t })} placeholder="YYYY-MM-DD" containerStyle={{ flex: 1, minWidth: 160 }} />
+            <TextField label="Starts" value={form.startDate} onChangeText={(t) => setForm({ ...form, startDate: t })} date placeholder="YYYY-MM-DD" containerStyle={{ flex: 1, minWidth: 160 }} />
+            <TextField label="Ends" value={form.endDate} onChangeText={(t) => setForm({ ...form, endDate: t })} date placeholder="YYYY-MM-DD" containerStyle={{ flex: 1, minWidth: 160 }} />
           </HStack>
           <Button
             label="Add year"

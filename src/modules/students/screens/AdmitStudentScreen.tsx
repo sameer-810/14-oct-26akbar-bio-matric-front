@@ -221,7 +221,7 @@ export default function AdmitStudentScreen({ navigation }: Props) {
               onChange={set("gender")}
             />
             <HStack gap={12} wrap>
-              <TextField label="Date of birth" value={v.dateOfBirth} onChangeText={set("dateOfBirth")} placeholder="YYYY-MM-DD" error={errors.dateOfBirth} containerStyle={col} />
+              <TextField label="Date of birth" value={v.dateOfBirth} onChangeText={set("dateOfBirth")} date placeholder="YYYY-MM-DD" error={errors.dateOfBirth} containerStyle={col} />
               <TextField label="Student's mobile" value={v.studentPhone} onChangeText={set("studentPhone")} keyboardType="phone-pad" error={errors.studentPhone} containerStyle={col} />
             </HStack>
             <HStack style={{ width: "100%" }}>

@@ -138,8 +138,8 @@ export default function ExpensesScreen() {
           <VStack gap={10}>
             <ChipsRow chips={RANGE_CHIPS} active={activeRange ?? ""} onChange={(k) => pickRange(k as RangeKey)} />
             <HStack gap={12} wrap align="flex-end">
-              <TextField label="From" value={from} onChangeText={setFrom} placeholder="YYYY-MM-DD" containerStyle={{ width: 150 }} testID="expense-from" />
-              <TextField label="To" value={to} onChangeText={setTo} placeholder="YYYY-MM-DD" containerStyle={{ width: 150 }} testID="expense-to" />
+              <TextField label="From" value={from} onChangeText={setFrom} date placeholder="YYYY-MM-DD" containerStyle={{ width: 150 }} testID="expense-from" />
+              <TextField label="To" value={to} onChangeText={setTo} date placeholder="YYYY-MM-DD" containerStyle={{ width: 150 }} testID="expense-to" />
               <VStack style={{ minWidth: 220, flex: 1 }}>
                 <ToggleRow
                   label="Show cancelled"

@@ -12,6 +12,17 @@
       },
       "channel": "development"
     },
+    "device-test": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleDebug"
+      },
+      "channel": "development",
+      "env": {
+        "EXPO_PUBLIC_API_URL_DEV": "http://localhost:5010/api/v1"
+      }
+    },
     "preview": {
       "distribution": "internal",
       "android": {
