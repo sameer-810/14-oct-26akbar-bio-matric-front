@@ -22,8 +22,10 @@ export const authApi = Object.freeze({
     return data.data;
   },
 
-  async changePassword(audience: Audience, currentPassword: string, newPassword: string): Promise<TokenResponse> {
-    const { data } = await apiClient.post(`${authBase(audience)}/change-password`, { currentPassword, newPassword });
+  /** No currentPassword only for a parent's first password, straight after signing in with a temporary one. */
+  async changePassword(audience: Audience, currentPassword: string | null, newPassword: string): Promise<TokenResponse> {
+    const body = currentPassword ? { currentPassword, newPassword } : { newPassword };
+    const { data } = await apiClient.post(`${authBase(audience)}/change-password`, body);
     return data.data;
   },
 

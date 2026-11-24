@@ -22,6 +22,14 @@ export const changePasswordSchema = z
     path: ["newPassword"],
   });
 
+/** A parent's first password after a temporary one: only the new password, twice. */
+export const firstPasswordSchema = z
+  .object({
+    newPassword: newPasswordSchema,
+    confirm: z.string(),
+  })
+  .refine((v) => v.newPassword === v.confirm, { message: "The two new passwords do not match", path: ["confirm"] });
+
 export type FieldErrors = Partial<Record<string, string>>;
 
 /** Zod issues → { field: first message }. */

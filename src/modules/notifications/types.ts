@@ -25,7 +25,17 @@ export interface AlertLog {
 }
 
 export interface AlertReach {
-  adoption: { families: number; signedIn: number; withPush: number };
+  adoption: {
+    families: number;
+    signedIn: number;
+    withPush: number;
+    /** parents who can be sent an alert: an active login with a child still at the academy */
+    eligible: number;
+    /** of those, parents an app alert really reached (the push receipt came back clean) */
+    notified: number;
+    /** parents whose app alert is sent but not yet confirmed (about 15 minutes) */
+    awaiting: number;
+  };
   fallback: "sms" | "whatsapp" | "none";
   sms: boolean;
   whatsapp: boolean;

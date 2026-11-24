@@ -123,7 +123,9 @@ export async function startStack({ apiPort, admsPort }) {
 
   async function forcedChange(page, temp, next) {
     await page.getByTestId("forced-password-screen").waitFor();
-    await page.getByTestId("cp-current").fill(temp);
+    // a staff member re-enters the temporary password; a parent, who has just signed in with it, is not asked
+    const current = page.getByTestId("cp-current");
+    if (await current.count()) await current.fill(temp);
     await page.getByTestId("cp-new").fill(next);
     await page.getByTestId("cp-confirm").fill(next);
     await page.getByTestId("cp-submit").click();

@@ -162,7 +162,7 @@ try {
   await s.signIn(Q, parentUser, parentTemp, { parent: true });
   await s.forcedChange(Q, parentTemp, "Family-Strong-2026");
   await Q.getByTestId("parent-home").waitFor();
-  await Q.goto(`${s.WEB}/parent/more/fees`);
+  await Q.goto(`${s.WEB}/parent/fees`);
   check(await shows(Q.getByTestId("parent-fees-balance").getByText("₹20,000")), "the family sees ₹20,000 still to pay");
   check(await shows(Q.getByTestId("parent-receipt-R/2026-27/0001")), "…and its receipt");
   await Q.screenshot({ path: path.join(SHOTS, "fees-4-parent.png"), fullPage: true });

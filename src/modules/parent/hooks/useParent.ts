@@ -37,17 +37,8 @@ export const useChildToday = (id: string | undefined) =>
 export const useOverview = (id: string | undefined) =>
   useQuery({ queryKey: ["parent", "overview", id], queryFn: () => parentApi.overview(id as string), enabled: Boolean(id) });
 
-export const useChildDays = (id: string | undefined, from: string, to: string) =>
-  useQuery({ queryKey: ["parent", "days", id, from, to], queryFn: () => parentApi.days(id as string, from, to), enabled: Boolean(id) });
-
 export const useChildLectures = (id: string | undefined, from: string, to: string) =>
   useQuery({ queryKey: ["parent", "lectures", id, from, to], queryFn: () => parentApi.lectures(id as string, from, to), enabled: Boolean(id) });
-
-export const useChildProfile = (id: string | undefined) =>
-  useQuery({ queryKey: ["parent", "profile", id], queryFn: () => parentApi.profile(id as string), enabled: Boolean(id) });
-
-export const useChildLeaves =(id: string | undefined) =>
-  useQuery({ queryKey: ["parent", "leaves", id], queryFn: () => parentApi.leaves(id as string), enabled: Boolean(id) });
 
 export const useResults = (id: string | undefined, enabled = true) =>
   useQuery({ queryKey: ["parent", "results", id], queryFn: () => parentApi.results(id as string), enabled: Boolean(id) && enabled });
@@ -56,9 +47,6 @@ export const useChildFees = (id: string | undefined) =>
   useQuery({ queryKey: ["parent", "fees", id], queryFn: () => parentApi.fees(id as string), enabled: Boolean(id) });
 
 export const useFamilyNotices = () => useQuery({ queryKey: ["parent", "notices"], queryFn: parentApi.notices });
-
-export const useFamilyDocuments = (enabled = true) =>
-  useQuery({ queryKey: ["parent", "documents"], queryFn: parentApi.documents, enabled });
 
 export const useFamilyIssues = () => useQuery({ queryKey: ["parent", "issues"], queryFn: parentApi.issues });
 
@@ -71,11 +59,6 @@ export function useParentActions() {
   const qc = useQueryClient();
   const refresh = (key: string) => void qc.invalidateQueries({ queryKey: ["parent", key] });
   return {
-    applyLeave: useMutation({
-      mutationFn: (v: { studentId: string; from: string; to: string; reason: string }) =>
-        parentApi.applyLeave(v.studentId, { from: v.from, to: v.to, reason: v.reason }),
-      onSuccess: () => refresh("leaves"),
-    }),
     raiseIssue: useMutation({ mutationFn: parentApi.raiseIssue, onSuccess: () => refresh("issues") }),
     commentOnIssue: useMutation({
       mutationFn: (v: { id: string; body: string }) => parentApi.commentOnIssue(v.id, v.body),

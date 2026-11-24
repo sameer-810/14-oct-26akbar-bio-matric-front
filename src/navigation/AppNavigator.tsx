@@ -140,7 +140,7 @@ export default function AppNavigator() {
               >
                 <Menu size={22} color={palette.text.primary} strokeWidth={2} />
               </Pressable>
-              <BrandMark size={30} />
+              <BrandMark size={40} />
               <Text variant="h3" tone="primary" style={{ flex: 1 }}>
                 {NAV_ITEMS.find((i) => i.name === route.name)?.label || "Akbar's Academy"}
               </Text>

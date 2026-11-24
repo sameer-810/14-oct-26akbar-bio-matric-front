@@ -127,25 +127,12 @@ try {
   check(await shows(Q.getByText(/rank 1 of 2/)), "…the rank, and the class's numbers");
   await Q.screenshot({ path: path.join(SHOTS, "academics-4-parent-results.png"), fullPage: true });
 
-  await Q.goto(`${s.WEB}/parent/more/notices`);
+  await Q.goto(`${s.WEB}/parent/notices`);
   check(await shows(Q.getByTestId("parent-notice-Parents' meeting")), "the notice is on the family's board");
-  await Q.goto(`${s.WEB}/parent/more/documents`);
-  // record the link the app opens (headless Chromium has no PDF viewer to show it), then fetch it
-  await Q.evaluate(() => {
-    window.__opened = [];
-    window.open = (url) => {
-      window.__opened.push(String(url));
-      return null;
-    };
-  });
-  await Q.getByTestId("parent-document-open-Algebra worksheet 4").click();
-  await Q.waitForFunction(() => window.__opened.length > 0);
-  const opened = await Q.evaluate(() => window.__opened[0]);
-  const res = await Q.request.get(opened);
-  check(
-    opened.includes("/api/v1/files/") && res.status() === 200 && res.headers()["content-type"] === "application/pdf" && (await res.body()).equals(PDF),
-    "the worksheet opens from a short-lived link, as the very PDF that was shared",
-  );
+  // parents no longer have a Documents page: it is gone from More
+  await Q.goto(`${s.WEB}/parent/more`);
+  await Q.getByTestId("parent-more").waitFor();
+  check(!(await Q.getByText("Documents", { exact: true }).count()), "the parent app has no Documents section");
 
   await Q.goto(`${s.WEB}/parent/more/questions`);
   await Q.getByTestId("issue-new").click();

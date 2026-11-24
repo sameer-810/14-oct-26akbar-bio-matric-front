@@ -48,7 +48,7 @@ export interface Student extends StudentListItem {
   leftReason: string;
   parentAccountId: string | null;
   messaging: { sms: boolean; push: boolean };
-  parentLogin: { username: string; lastLoginAt: string | null; children: number } | null;
+  parentLogin: ParentLoginInfo | null;
   enrolment: {
     fingerprints: { fingerIndex: number; capturedAt: string }[];
     devices: { deviceId: string; commandId: number; status: string; error: string | null }[];
@@ -74,6 +74,21 @@ export interface AdmitInput {
 export interface AdmitResult {
   student: Student;
   parentLogin: { username: string; temporaryPassword: string | null; linkedToExisting: boolean };
+}
+
+/** The family login's state. The password itself is never sent: it is kept only as a hash. */
+export interface ParentLoginInfo {
+  username: string;
+  /** the old portal's guardian IDs, which still sign in to the same account */
+  oldPortalIds?: string[];
+  lastLoginAt: string | null;
+  children: number;
+  isActive?: boolean;
+  /** true while the family is still on a temporary password from a slip */
+  mustChangePassword?: boolean;
+  passwordChangedAt?: string | null;
+  /** set while too many wrong passwords keep the account locked */
+  lockedUntil?: string | null;
 }
 
 export interface ParentMatch {

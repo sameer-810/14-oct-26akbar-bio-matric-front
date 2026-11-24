@@ -42,7 +42,7 @@ export default function LoginScreen() {
       <View style={[styles.wrap, isWide && styles.wrapWide]}>
         <VStack gap={24}>
           <VStack gap={10} align="center">
-            <BrandMark variant="badge" size={isWide ? 132 : 112} />
+            <BrandMark size={isWide ? 132 : 112} />
             <Text variant="h1" heading={1} center>
               Akbar&apos;s Academy
             </Text>

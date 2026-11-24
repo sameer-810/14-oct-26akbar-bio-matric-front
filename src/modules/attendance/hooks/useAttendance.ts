@@ -3,8 +3,8 @@ import { attendanceApi } from "../api/attendanceApi";
 import type { DailyPunchQuery, DayStatus } from "../types";
 
 /** The board is the screen at the gate: near live. A socket can replace this poll later. */
-export function useBoard(date?: string) {
-  return useQuery({ queryKey: ["board", date ?? "today"], queryFn: () => attendanceApi.board(date), refetchInterval: 5_000 });
+export function useBoard(date?: string, { enabled = true }: { enabled?: boolean } = {}) {
+  return useQuery({ queryKey: ["board", date ?? "today"], queryFn: () => attendanceApi.board(date), refetchInterval: 5_000, enabled });
 }
 
 export function useRegister(batchId: string | null, date: string) {
@@ -35,8 +35,8 @@ export function useDailyPunches(q: DailyPunchQuery, enabled: boolean) {
 }
 
 /** Parent applications waiting for staff; polled so the desk sees new ones. */
-export function useLeaveList(params: { status?: "pending" | "approved" | "rejected" | "cancelled"; from?: string }) {
-  return useQuery({ queryKey: ["leaves", "list", params], queryFn: () => attendanceApi.leaveList(params), refetchInterval: 30_000 });
+export function useLeaveList(params: { status?: "pending" | "approved" | "rejected" | "cancelled"; from?: string }, { enabled = true }: { enabled?: boolean } = {}) {
+  return useQuery({ queryKey: ["leaves", "list", params], queryFn: () => attendanceApi.leaveList(params), refetchInterval: 30_000, enabled });
 }
 
 export function useLeaves(studentId: string) {

@@ -1,27 +1,30 @@
 import React, { useEffect } from "react";
-import { Platform } from "react-native";
+import { Platform, Text } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { House, CalendarDays, Bell, LayoutGrid, UserRound } from "lucide-react-native";
+import { House, IndianRupee, Bell, LayoutGrid, Megaphone } from "lucide-react-native";
 
 import { palette } from "@shared/designSystem";
 import ParentHomeScreen from "@modules/parent/screens/ParentHomeScreen";
-import ParentCalendarScreen from "@modules/parent/screens/ParentCalendarScreen";
+import ParentFeesScreen from "@modules/parent/screens/ParentFeesScreen";
 import ParentAlertsScreen from "@modules/parent/screens/ParentAlertsScreen";
 import ParentMoreNavigator from "@modules/parent/ParentMoreNavigator";
-import ParentAccountScreen from "@modules/parent/screens/ParentAccountScreen";
-import { useInbox, useKeepChildSelected } from "@modules/parent/hooks/useParent";
+import ParentNoticesScreen from "@modules/parent/screens/ParentNoticesScreen";
+import { useInbox, useKeepChildSelected, useParentSettings } from "@modules/parent/hooks/useParent";
 import { registerForPush } from "@modules/parent/pushRegistration";
 
 const Tab = createBottomTabNavigator();
 
 /**
- * The parent app: five tabs, the same on a phone and in a browser. "More"
- * holds results, the notice board, documents, leave and questions — each
- * shown only when the owner allows it.
+ * The parent app: Home, Fees, Alerts, More and Notice board, the same on a
+ * phone and in a browser. "More" holds the calendar, profile, results,
+ * documents, leave and the account. Fees, and More's sections, show only
+ * when the owner allows them.
  */
 export default function ParentNavigator() {
   const unread = useInbox().data?.unread ?? 0;
+  // a section the owner closed has no tab
+  const feesOn = useParentSettings().data?.sections.fees !== false;
   // no header on these tabs, so keep each page clear of the phone's status bar
   const { top } = useSafeAreaInsets();
   useKeepChildSelected();
@@ -47,11 +50,13 @@ export default function ParentNavigator() {
         component={ParentHomeScreen}
         options={{ title: "Home", tabBarIcon: ({ color, size }) => <House color={color} size={size} />, tabBarButtonTestID: "tab-home" }}
       />
-      <Tab.Screen
-        name="ParentCalendar"
-        component={ParentCalendarScreen}
-        options={{ title: "Calendar", tabBarIcon: ({ color, size }) => <CalendarDays color={color} size={size} />, tabBarButtonTestID: "tab-calendar" }}
-      />
+      {feesOn ? (
+        <Tab.Screen
+          name="ParentFees"
+          component={ParentFeesScreen}
+          options={{ title: "Fees", tabBarIcon: ({ color, size }) => <IndianRupee color={color} size={size} />, tabBarButtonTestID: "tab-fees" }}
+        />
+      ) : null}
       <Tab.Screen
         name="ParentAlerts"
         component={ParentAlertsScreen}
@@ -68,9 +73,19 @@ export default function ParentNavigator() {
         options={{ title: "More", tabBarIcon: ({ color, size }) => <LayoutGrid color={color} size={size} />, tabBarButtonTestID: "tab-more" }}
       />
       <Tab.Screen
-        name="ParentAccount"
-        component={ParentAccountScreen}
-        options={{ title: "Account", tabBarIcon: ({ color, size }) => <UserRound color={color} size={size} />, tabBarButtonTestID: "tab-account" }}
+        name="ParentNotices"
+        component={ParentNoticesScreen}
+        options={{
+          title: "Notice Board",
+          // the longest label: shrinks to fit a narrow phone instead of "Notice Bo…"
+          tabBarLabel: ({ color }) => (
+            <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} style={{ color, fontFamily: "Inter_500Medium", fontSize: 11 }}>
+              Notice Board
+            </Text>
+          ),
+          tabBarIcon: ({ color, size }) => <Megaphone color={color} size={size} />,
+          tabBarButtonTestID: "tab-notices",
+        }}
       />
     </Tab.Navigator>
   );

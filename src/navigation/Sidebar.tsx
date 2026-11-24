@@ -15,12 +15,27 @@ import {
   ChevronDown,
   ChevronsLeft,
   ChevronsRight,
+  type LucideIcon,
 } from "lucide-react-native";
 import { useAuthStore } from "@shared/store/useAuthStore";
 import { palette, radius, layout } from "@shared/designSystem";
 import { Text, VStack, HStack, Avatar, BrandMark } from "@shared/ui";
-import { type NavItem, type NavSection, SECTION_ICON, SECTION_ORDER, useVisibleNavItems } from "./navItems";
+import {
+  type NavItem,
+  type NavSection,
+  type NavFolder,
+  SECTION_ICON,
+  SECTION_ORDER,
+  SECTION_FOLDER,
+  FOLDER_ICON,
+  FLAT_SECTIONS,
+  TOP_LEVEL,
+  useVisibleNavItems,
+} from "./navItems";
 import { useUnreadInbox } from "@modules/notifications/hooks/useInbox";
+
+/** What can be opened in the sidebar: a section, or a folder of sections. */
+type Group = NavSection | NavFolder;
 
 interface Props {
   activeRoute: string;
@@ -39,19 +54,103 @@ export function Sidebar({
   const name = useAuthStore((s) => s.staff?.name ?? "");
   const roleLabel = useAuthStore((s) => s.staff?.roleLabel ?? "");
   const logout = useAuthStore((s) => s.logout);
-  const items = useVisibleNavItems();
-  const activeSection = items.find((it) => it.name === activeRoute)?.section;
-  const [open, setOpen] = useState<NavSection[]>(activeSection ? [activeSection] : []);
+  const allowed = useVisibleNavItems();
+  const shownAs = (it: NavItem) => (it.sidebarAs && allowed.some((x) => x.name === it.sidebarAs) ? it.sidebarAs : it.name);
+  // a page opened from a tab (Reports) has no row of its own: its tab's page is highlighted
+  const items = allowed.filter((it) => shownAs(it) === it.name);
+  const current = allowed.find((it) => it.name === activeRoute);
+  const activeName = current ? shownAs(current) : activeRoute;
+  const activeSection = items.find((it) => it.name === activeName)?.section;
+  const activeFolder = activeSection ? SECTION_FOLDER[activeSection] : undefined;
+  // the section holding the current page, and its folder (Settings), if any
+  const pathTo = (section?: NavSection): Group[] => {
+    if (!section) return [];
+    const folder = SECTION_FOLDER[section];
+    return folder ? [folder, section] : [section];
+  };
+  const [open, setOpen] = useState<Group[]>(pathTo(activeSection));
 
   // arriving on a page from anywhere shows the group it belongs to
   const [shownSection, setShownSection] = useState(activeSection);
   if (activeSection !== shownSection) {
     setShownSection(activeSection);
-    if (activeSection && !open.includes(activeSection)) setOpen([...open, activeSection]);
+    const missing = pathTo(activeSection).filter((g) => !open.includes(g));
+    if (missing.length) setOpen([...open, ...missing]);
   }
 
-  const toggle = (section: NavSection) =>
-    setOpen((o) => (o.includes(section) ? o.filter((s) => s !== section) : [...o, section]));
+  const toggle = (group: Group) =>
+    setOpen((o) => (o.includes(group) ? o.filter((s) => s !== group) : [...o, group]));
+
+  const itemsOf = (section: NavSection) => items.filter((it) => it.section === section);
+  const rows = (section: NavSection, depth: 0 | 1 | 2) =>
+    itemsOf(section).map((item) => (
+      <NavRow
+        key={item.name}
+        item={item}
+        active={activeName === item.name}
+        collapsed={collapsed}
+        depth={depth}
+        onPress={() => onNavigate(item.name)}
+      />
+    ));
+
+  /** One section's dropdown: its header row and, when open, its pages. */
+  const sectionBlock = (section: NavSection, nested: boolean) => {
+    const group = itemsOf(section);
+    if (group.length === 0) return null;
+    // no dropdown: the pages themselves are top-level rows
+    if (FLAT_SECTIONS.includes(section) && !nested) {
+      return (
+        <View key={section}>
+          {collapsed ? <View style={styles.sectionDivider} /> : null}
+          {rows(section, 0)}
+        </View>
+      );
+    }
+    const expanded = open.includes(section);
+    return (
+      <View key={section}>
+        {collapsed ? (
+          <View style={styles.sectionDivider} />
+        ) : (
+          <SectionRow
+            label={section}
+            icon={SECTION_ICON[section]}
+            active={section === activeSection}
+            nested={nested}
+            expanded={expanded}
+            hasInbox={group.some((it) => it.name === "Inbox")}
+            onPress={() => toggle(section)}
+          />
+        )}
+        {collapsed || expanded ? rows(section, nested ? 2 : 1) : null}
+      </View>
+    );
+  };
+
+  /** A folder (Settings): its header row and, when open, each of its sections' dropdowns. */
+  const folderBlock = (folder: NavFolder) => {
+    const sections = SECTION_ORDER.filter((sec) => SECTION_FOLDER[sec] === folder && itemsOf(sec).length);
+    if (sections.length === 0) return null;
+    // a collapsed sidebar shows only icons, so the sections are laid out flat as before
+    if (collapsed) return sections.map((sec) => sectionBlock(sec, false));
+    const expanded = open.includes(folder);
+    return (
+      <View key={folder}>
+        <SectionRow
+          label={folder}
+          icon={FOLDER_ICON[folder]}
+          active={folder === activeFolder}
+          nested={false}
+          expanded={expanded}
+          hasInbox={sections.some((sec) => itemsOf(sec).some((it) => it.name === "Inbox"))}
+          onPress={() => toggle(folder)}
+          testID={`nav-folder-${folder}`}
+        />
+        {expanded ? sections.map((sec) => sectionBlock(sec, true)) : null}
+      </View>
+    );
+  };
 
   return (
     <View
@@ -74,7 +173,7 @@ export function Sidebar({
           marginBottom: 18,
         }}
       >
-        <BrandMark size={36} />
+        <BrandMark size={44} />
         {!collapsed ? (
           <>
             <VStack gap={1} flex={1}>
@@ -125,37 +224,9 @@ export function Sidebar({
         contentContainerStyle={{ paddingHorizontal: collapsed ? 10 : 12 }}
         showsVerticalScrollIndicator={false}
       >
-        {SECTION_ORDER.map((section) => {
-          const group = items.filter((it) => it.section === section);
-          if (group.length === 0) return null;
-          const expanded = open.includes(section);
-          return (
-            <View key={section}>
-              {collapsed ? (
-                <View style={styles.sectionDivider} />
-              ) : (
-                <SectionRow
-                  section={section}
-                  active={section === activeSection}
-                  expanded={expanded}
-                  hasInbox={group.some((it) => it.name === "Inbox")}
-                  onPress={() => toggle(section)}
-                />
-              )}
-              {collapsed || expanded
-                ? group.map((item) => (
-                    <NavRow
-                      key={item.name}
-                      item={item}
-                      active={activeRoute === item.name}
-                      collapsed={collapsed}
-                      onPress={() => onNavigate(item.name)}
-                    />
-                  ))
-                : null}
-            </View>
-          );
-        })}
+        {TOP_LEVEL.map((entry) =>
+          (SECTION_ORDER as string[]).includes(entry) ? sectionBlock(entry as NavSection, false) : folderBlock(entry as NavFolder),
+        )}
       </ScrollView>
 
       <View
@@ -220,20 +291,26 @@ export function Sidebar({
 const isHot = (state: PressableStateCallbackType) =>
   state.pressed || (state as { hovered?: boolean }).hovered;
 
+/** A dropdown header: a top-level section, the Settings folder, or (nested) a section inside it. */
 function SectionRow({
-  section,
+  label,
+  icon: Icon,
   active,
+  nested,
   expanded,
   hasInbox,
   onPress,
+  testID,
 }: {
-  section: NavSection;
+  label: string;
+  icon: LucideIcon;
   active: boolean;
+  nested: boolean;
   expanded: boolean;
   hasInbox: boolean;
   onPress: () => void;
+  testID?: string;
 }) {
-  const Icon = SECTION_ICON[section];
   const color = active ? palette.primary[700] : palette.text.secondary;
   const [turn] = useState(() => new Animated.Value(expanded ? 1 : 0));
   useEffect(() => {
@@ -249,20 +326,22 @@ function SectionRow({
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={section}
+      accessibilityLabel={label}
       accessibilityState={{ expanded }}
       {...webAria({ expanded })}
-      testID={`nav-section-${section}`}
+      testID={testID ?? `nav-section-${label}`}
       style={(state) => [
         styles.navRow,
         styles.sectionRow,
-        active && styles.navRowActive,
+        nested && styles.childRow,
+        // inside Settings only the folder row is tinted; the section shows in colour alone
+        active && !nested && styles.navRowActive,
         isHot(state) && !active ? { backgroundColor: palette.ink[50] } : null,
       ]}
     >
       <Icon size={18} color={active ? palette.primary[700] : palette.text.tertiary} strokeWidth={active ? 2.3 : 1.9} />
       <Text variant="label-lg" numberOfLines={1} style={{ color, flex: 1 }}>
-        {section}
+        {label}
       </Text>
       {hasInbox && !expanded ? <UnreadBadge /> : null}
       <Animated.View style={{ transform: [{ rotate }] }}>
@@ -276,11 +355,14 @@ function NavRow({
   item,
   active,
   collapsed,
+  depth = 1,
   onPress,
 }: {
   item: NavItem;
   active: boolean;
   collapsed: boolean;
+  /** 0 for a top-level link (Dashboard), 2 for a page inside a section inside Settings */
+  depth?: 0 | 1 | 2;
   onPress: () => void;
 }) {
   const Icon = item.icon;
@@ -296,12 +378,12 @@ function NavRow({
       {...webAria({ current: active ? "page" : undefined })}
       style={(state) => [
         styles.navRow,
-        collapsed ? styles.navRowCollapsed : styles.childRow,
-        active && (collapsed ? styles.navRowActive : styles.childRowActive),
+        collapsed ? styles.navRowCollapsed : depth === 0 ? styles.sectionRow : depth === 2 ? styles.grandchildRow : styles.childRow,
+        active && (collapsed || depth === 0 ? styles.navRowActive : styles.childRowActive),
         isHot(state) && !active ? { backgroundColor: palette.ink[50] } : null,
       ]}
     >
-      {active && !collapsed ? <View style={styles.activeBar} /> : null}
+      {active && !collapsed && depth !== 0 ? <View style={styles.activeBar} /> : null}
       <Icon
         size={18}
         color={active ? palette.primary[700] : palette.text.tertiary}
@@ -309,7 +391,7 @@ function NavRow({
       />
       {!collapsed ? (
         <Text
-          variant="label"
+          variant={depth === 0 ? "label-lg" : "label"}
           numberOfLines={1}
           style={{
             color: active ? palette.primary[700] : palette.text.secondary,
@@ -384,6 +466,7 @@ const styles = StyleSheet.create({
   navRowActive: { backgroundColor: palette.primary[50] },
   sectionRow: { marginTop: 4 },
   childRow: { marginLeft: 18 },
+  grandchildRow: { marginLeft: 36 },
   childRowActive: { backgroundColor: palette.ink[50] },
   activeBar: {
     position: "absolute",

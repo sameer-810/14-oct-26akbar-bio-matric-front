@@ -55,7 +55,7 @@ export function receiptHtml(p: PrintableReceipt): string {
   @page { size: A5 portrait; margin: 10mm; }
   body { font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: #0B1220; margin: 0; font-size: 10pt; position: relative; }
   .head { text-align: center; border-bottom: 2px solid #0B1220; padding-bottom: 6pt; margin-bottom: 8pt; }
-  .logo { width: 17mm; height: 17mm; display: block; margin: 0 auto 3pt; }
+  .logo { width: 17mm; height: 17mm; object-fit: contain; display: block; margin: 0 auto 3pt; }
   .academy { font-size: 15pt; font-weight: 700; }
   .branch { font-size: 10pt; font-weight: 600; color: #3A4657; }
   .contact, .gstin { font-size: 8.5pt; color: #3A4657; }

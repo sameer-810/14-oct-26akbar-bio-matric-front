@@ -51,7 +51,12 @@ export function useStudentActions(id: string) {
     extend: useMutation({ mutationFn: (validTill: string) => studentsApi.extend(id, validTill), onSuccess: invalidate }),
     markLeft: useMutation({ mutationFn: (v: { reason?: string; removeFromDevices?: boolean }) => studentsApi.markLeft(id, v), onSuccess: invalidate }),
     resend: useMutation({ mutationFn: () => studentsApi.resendToDevices(id), onSuccess: invalidate }),
-    resetParent: useMutation({ mutationFn: () => studentsApi.resetParentPassword(id) }),
+    // refetches the student, so the login's password status updates straight away
+    updateParentLogin: useMutation({
+      mutationFn: (body: Parameters<typeof studentsApi.updateParentLogin>[1]) => studentsApi.updateParentLogin(id, body),
+      onSuccess: invalidate,
+    }),
+    resetParent: useMutation({ mutationFn: (password?: string) => studentsApi.resetParentPassword(id, password), onSuccess: invalidate }),
     update: useMutation({ mutationFn: (patch: Parameters<typeof studentsApi.update>[1]) => studentsApi.update(id, patch), onSuccess: invalidate }),
   };
 }

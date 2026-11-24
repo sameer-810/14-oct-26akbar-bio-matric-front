@@ -7,12 +7,13 @@ import { palette, radius } from "@shared/designSystem";
 import { apiErrorMessage } from "@api/apiClient";
 import { useAuthStore } from "@shared/store/useAuthStore";
 import { authApi } from "../api/authApi";
-import { changePasswordSchema, fieldErrors, type FieldErrors } from "../auth.validation";
+import { changePasswordSchema, firstPasswordSchema, fieldErrors, type FieldErrors } from "../auth.validation";
 
 /**
  * Used two ways: `forced` after signing in with a temporary password (the only
  * screen reachable until it is done — the server refuses everything else too),
- * and from the profile for an ordinary change.
+ * and from the profile for an ordinary change. A parent forced here has just
+ * signed in with the temporary password, so is asked only for the new one twice.
  */
 export default function ChangePasswordScreen({ forced = false, onDone }: { forced?: boolean; onDone?: () => void }) {
   const { isWide } = useBreakpoint();
@@ -20,6 +21,7 @@ export default function ChangePasswordScreen({ forced = false, onDone }: { force
   const signedIn = useAuthStore((s) => s.signedIn);
   const logout = useAuthStore((s) => s.logout);
   const [form, setForm] = useState({ currentPassword: "", newPassword: "", confirm: "" });
+  const firstPassword = forced && audience === "parent";
   const [errors, setErrors] = useState<FieldErrors>({});
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
@@ -28,13 +30,13 @@ export default function ChangePasswordScreen({ forced = false, onDone }: { force
   const set = (k: keyof typeof form) => (v: string) => setForm((f) => ({ ...f, [k]: v }));
 
   async function submit() {
-    const parsed = changePasswordSchema.safeParse(form);
+    const parsed = (firstPassword ? firstPasswordSchema : changePasswordSchema).safeParse(form);
     setErrors(fieldErrors(parsed));
     if (!parsed.success) return;
     setBusy(true);
     setError(null);
     try {
-      const r = await authApi.changePassword(audience, form.currentPassword, form.newPassword);
+      const r = await authApi.changePassword(audience, firstPassword ? null : form.currentPassword, form.newPassword);
       // the change revoked every older token; carry on with the fresh pair
       signedIn(audience, r.account, r.accessToken, r.refreshToken);
       setForm({ currentPassword: "", newPassword: "", confirm: "" });
@@ -54,11 +56,16 @@ export default function ChangePasswordScreen({ forced = false, onDone }: { force
           <Banner
             tone="info"
             title="Choose your own password"
-            message="You signed in with a temporary password. Set one only you know before continuing."
+            message={
+              firstPassword
+                ? "Choose a password only you know. You will use it from now on."
+                : "You signed in with a temporary password. Set one only you know before continuing."
+            }
           />
         ) : null}
         {done && !forced ? <Banner tone="success" message="Password changed. Your other devices were signed out." /> : null}
         {error ? <Banner tone="danger" message={error} /> : null}
+        {firstPassword ? null : (
         <TextField
           label={forced ? "Temporary password" : "Current password"}
           value={form.currentPassword}
@@ -69,6 +76,7 @@ export default function ChangePasswordScreen({ forced = false, onDone }: { force
           error={errors.currentPassword}
           testID="cp-current"
         />
+        )}
         <TextField
           label="New password"
           value={form.newPassword}
@@ -81,7 +89,7 @@ export default function ChangePasswordScreen({ forced = false, onDone }: { force
           testID="cp-new"
         />
         <TextField
-          label="Type it again"
+          label={firstPassword ? "Confirm new password" : "Type it again"}
           value={form.confirm}
           onChangeText={set("confirm")}
           secureTextEntry
@@ -91,7 +99,7 @@ export default function ChangePasswordScreen({ forced = false, onDone }: { force
           testID="cp-confirm"
           onSubmitEditing={submit}
         />
-        <Button label="Change password" onPress={submit} loading={busy} fullWidth testID="cp-submit" />
+        <Button label={firstPassword ? "Set password" : "Change password"} onPress={submit} loading={busy} fullWidth testID="cp-submit" />
         {forced ? <Button label="Sign out" variant="ghost" onPress={() => void logout()} fullWidth /> : null}
       </VStack>
     </Card>

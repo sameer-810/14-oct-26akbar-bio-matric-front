@@ -1,7 +1,11 @@
 import React, { useState } from "react";
+import { Pressable } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { Fingerprint } from "lucide-react-native";
-import { Screen, Card, VStack, HStack, Text, Button, DataTable, ChipsRow, TextField, Banner, ErrorState, SearchInput, Select, Pagination, type Column } from "@shared/ui";
+import { Screen, Card, VStack, HStack, Text, Button, Avatar, DataTable, ChipsRow, TextField, Banner, ErrorState, SearchInput, Select, Pagination, type Column } from "@shared/ui";
 import { useFilters } from "@shared/useFilters";
+import { PERMISSIONS } from "@shared/permissions";
+import { useAuthStore } from "@shared/store/useAuthStore";
 import { academyToday, formatDay, formatTime } from "@shared/format";
 import { useDailyPunches } from "../hooks/useAttendance";
 import type { DailyPunch } from "../types";
@@ -13,6 +17,8 @@ const personLabel = (p: DailyPunch) => {
   if (p.name) return p.personType === "teacher" ? `${p.name} (faculty)` : p.name;
   return p.machineName ? `${p.machineName} · not added in the app` : "Nobody with this ID";
 };
+type Nav = { navigate: (name: string, params?: object) => void };
+
 const timeOrDash = (at: string | null) => (at ? formatTime(at) : "--");
 
 /**
@@ -22,6 +28,33 @@ const timeOrDash = (at: string | null) => (at ? formatTime(at) : "--");
  */
 export default function PunchesScreen() {
   const [today] = useState(academyToday());
+  const nav = useNavigation<Nav>();
+  const canOpenStudents = useAuthStore((s) => s.hasPermission(PERMISSIONS.STUDENTS_VIEW) || s.hasPermission(PERMISSIONS.STUDENTS_MANAGE));
+  // the filters live in useFilters, so they are still set on coming back
+  const openStudent = (p: DailyPunch) =>
+    canOpenStudents && p.studentId ? () => nav.navigate("Students", { screen: "StudentDetail", params: { id: p.studentId } }) : undefined;
+
+  /** The name; for a known student, a link to the profile. */
+  const nameCell = (p: DailyPunch, variant: "body-sm" | "label") => {
+    const open = openStudent(p);
+    const label = (
+      <Text variant={variant} tone={p.personType === "unknown" ? "warning" : open ? "link" : "primary"}>
+        {personLabel(p)}
+      </Text>
+    );
+    return (
+      <HStack gap={10} align="center">
+        <Avatar name={p.name || p.machineName || "?"} uri={p.photoUrl || undefined} size={32} />
+        {open ? (
+          <Pressable onPress={open} accessibilityRole="link" accessibilityLabel={`Open ${p.name}'s profile`} hitSlop={6}>
+            {label}
+          </Pressable>
+        ) : (
+          label
+        )}
+      </HStack>
+    );
+  };
   const { filters, set, reset, isFiltered } = useFilters("punches-daily", { who: "all", search: "", source: "", from: today, to: today, page: 1 });
   // typed dates wait for Apply, so a half-typed date never reloads the table
   const [from, setFrom] = useState(filters.from);
@@ -53,11 +86,7 @@ export default function PunchesScreen() {
       key: "who",
       header: "Student Name",
       flex: 2,
-      render: (p) => (
-        <Text variant="body-sm" tone={p.personType === "unknown" ? "warning" : "primary"}>
-          {personLabel(p)}
-        </Text>
-      ),
+      render: (p) => nameCell(p, "body-sm"),
     },
     { key: "gr", header: "GR Number", width: 100, render: (p) => <Text variant="body-sm" tabular>{p.grNumber ?? "--"}</Text> },
     { key: "in", header: "In Time", width: 90, render: (p) => <Text variant="body-sm" tabular>{timeOrDash(p.inAt)}</Text> },
@@ -127,9 +156,7 @@ export default function PunchesScreen() {
           mobileCard={(p) => (
             <Card>
               <VStack gap={4}>
-                <Text variant="label" tone={p.personType === "unknown" ? "warning" : "primary"}>
-                  {personLabel(p)}
-                </Text>
+                {nameCell(p, "label")}
                 <Text variant="caption" tone="secondary">
                   {formatDay(p.date)} · GR {p.grNumber ?? "--"} · ID {p.biometricId}
                 </Text>

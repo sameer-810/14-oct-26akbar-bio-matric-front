@@ -26,11 +26,12 @@ import { palette } from "@shared/designSystem";
 import { PERMISSIONS } from "@shared/permissions";
 import { useAuthStore } from "@shared/store/useAuthStore";
 import { apiErrorMessage } from "@api/apiClient";
-import { formatDay, formatDateTime, academyToday } from "@shared/format";
+import { formatDay, academyToday } from "@shared/format";
 import { useBatches, useCurrentYear, useSettings } from "@modules/academy/hooks/useAcademy";
 import { useDevices } from "@modules/devices/hooks/useDevices";
 import { useStudent, useStudentActions } from "../hooks/useStudents";
 import { AdmissionSlip } from "../components/AdmissionSlip";
+import { ParentLoginCard } from "../components/ParentLoginCard";
 import { StudentAttendanceCard } from "@modules/attendance/components/StudentAttendanceCard";
 import { StudentFeesCard } from "@modules/fees/components/StudentFeesCard";
 import type { StudentsParamList } from "../StudentsNavigator";
@@ -69,6 +70,30 @@ export default function StudentDetailScreen({ route, navigation }: Props) {
       setPanel(null);
     } catch (err) {
       setMsg({ tone: "danger", text: apiErrorMessage(err) });
+    }
+  };
+
+  // rethrows, so the card keeps a typed password on screen when saving fails
+  const resetParent = async (password?: string) => {
+    setMsg(null);
+    try {
+      setSlip(await act.resetParent.mutateAsync(password));
+      setMsg({ tone: "success", text: "New temporary password made. Copy it from the Parent login card; the parent's phones were signed out." });
+    } catch (err) {
+      setMsg({ tone: "danger", text: apiErrorMessage(err) });
+      throw err;
+    }
+  };
+
+  // rethrows, so the form stays open with what was typed when the server refuses
+  const saveParentIds = async (body: { username: string; oldPortalIds: string[] }) => {
+    setMsg(null);
+    try {
+      await act.updateParentLogin.mutateAsync(body);
+      setMsg({ tone: "success", text: "Parent login updated. The password is unchanged; tell the parent the new ID." });
+    } catch (err) {
+      setMsg({ tone: "danger", text: apiErrorMessage(err) });
+      throw err;
     }
   };
 
@@ -132,12 +157,7 @@ export default function StudentDetailScreen({ route, navigation }: Props) {
               {s.guardians.map((g) => (
                 <Fact key={g.relation} label={g.relation[0].toUpperCase() + g.relation.slice(1)} value={[g.name, g.phone].filter(Boolean).join(" · ") || "—"} />
               ))}
-              {s.parentLogin ? (
-                <Fact
-                  label="Parent login"
-                  value={`${s.parentLogin.username}${s.parentLogin.children > 1 ? ` (${s.parentLogin.children} children)` : ""} · ${s.parentLogin.lastLoginAt ? `last in ${formatDateTime(s.parentLogin.lastLoginAt)}` : "never signed in"}`}
-                />
-              ) : null}
+              {!s.parentLogin ? <Fact label="Parent login" value="None yet" /> : null}
             </VStack>
           </Card>
 
@@ -179,6 +199,15 @@ export default function StudentDetailScreen({ route, navigation }: Props) {
           </Card>
         </View>
 
+        {s.parentLogin ? (
+          <ParentLoginCard login={s.parentLogin} canManage={canManage && Boolean(s.parentAccountId)}             onReset={resetParent}
+            resetting={act.resetParent.isPending}
+            onSaveIds={saveParentIds}
+            newPassword={slip?.temporaryPassword ?? null}
+            savingIds={act.updateParentLogin.isPending}
+          />
+        ) : null}
+
         {canSeeAttendance ? <StudentAttendanceCard studentId={s.id} canManage={canManageAttendance} /> : null}
         <StudentFeesCard studentId={s.id} />
 
@@ -192,19 +221,6 @@ export default function StudentDetailScreen({ route, navigation }: Props) {
                   <Button label="Other batches" variant="secondary" size="sm" onPress={() => setPanel(panel === "extra" ? null : "extra")} testID="student-extra-batches" />
                 ) : null}
                 {s.status !== "left" ? <Button label="Extend admission" variant="secondary" size="sm" onPress={() => setPanel(panel === "extend" ? null : "extend")} /> : null}
-                {s.parentAccountId ? (
-                  <Button
-                    label="New parent password"
-                    variant="secondary"
-                    size="sm"
-                    onPress={() =>
-                      run(async () => {
-                        setSlip(await act.resetParent.mutateAsync());
-                      }, "A new slip is shown above. The parent's phones were signed out.")
-                    }
-                    testID="student-parent-reset"
-                  />
-                ) : null}
                 {s.status !== "left" ? <Button label="Student has left" variant="destructive" size="sm" onPress={() => setPanel(panel === "left" ? null : "left")} /> : null}
               </HStack>
 

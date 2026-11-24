@@ -37,26 +37,16 @@ export interface Overview {
   year: Period;
 }
 
-export interface ChildDays {
-  counts: Counts;
-  percent: number | null;
-  days: {
-    date: string;
-    status: DayStatus;
-    entryAt: string | null;
-    exitAt: string | null;
-    /** every IN with its OUT (null while inside) — a break in the day makes two */
-    sessions: { inAt: string; outAt: string | null }[];
-    durationMinutes: number | null;
-  }[];
-}
-
 export interface ParentMessage {
   id: string;
   type: "entry" | "exit" | "absent" | "leave" | "notice" | "message" | "exam" | "document" | "issue" | "fee";
   title: string;
   body: string;
   studentId: string | null;
+  /** entry or exit: the academy date "YYYY-MM-DD" (older servers leave it out) */
+  date?: string | null;
+  /** entry or exit: the punch time */
+  at?: string | null;
   createdAt: string;
   read: boolean;
 }
@@ -116,17 +106,6 @@ export interface FamilyNotice {
   createdAt: string;
 }
 
-export interface FamilyDocument {
-  id: string;
-  title: string;
-  description: string;
-  everyone: boolean;
-  fileName: string;
-  mimeType: string;
-  size: number;
-  createdAt: string;
-}
-
 export type IssueCategory = "academic" | "attendance" | "fees" | "facility" | "app" | "staff" | "other";
 
 export interface FamilyIssue {
@@ -155,20 +134,3 @@ export interface ChildLecture {
   status: "present" | "absent" | null;
 }
 
-export interface ChildProfile {
-  id: string;
-  name: string;
-  grNumber: string;
-  photoUrl: string;
-  gender: string;
-  dateOfBirth: string | null;
-  phone: string;
-  email: string;
-  schoolName: string;
-  address: { line1?: string; landmark?: string; city?: string; state?: string; pincode?: string };
-  admissionDate: string;
-  batch: { name: string; startTime: string; endTime: string } | null;
-  /** extra batches attended besides the home batch, e.g. a maths group */
-  otherBatches: string[];
-  guardians: { relation: string; name: string; phone: string; email: string }[];
-}

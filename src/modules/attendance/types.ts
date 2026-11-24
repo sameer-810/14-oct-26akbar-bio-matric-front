@@ -116,6 +116,10 @@ export interface DailyPunch {
   name: string | null;
   /** for an ID nobody here has, the GR the ID itself carries */
   grNumber: string | null;
+  /** the student's id, for opening the profile; null for faculty and unknown IDs */
+  studentId?: string | null;
+  /** a student's photo; "" when there is none, and the Avatar shows initials */
+  photoUrl?: string;
   /** the name the ID is enrolled under on the machine, when nobody here has it */
   machineName: string | null;
   inAt: string;

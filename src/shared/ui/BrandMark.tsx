@@ -2,23 +2,23 @@ import React from "react";
 import { Image, type StyleProp, type ImageStyle } from "react-native";
 
 const BADGE = require("../../../assets/logo.png");
-const MARK = require("../../../assets/mark.png");
 
 interface Props {
+  /** Width and height in px: the badge is round, so it is always drawn square. */
   size: number;
-  /** "badge" is the full round logo with its lettering; "mark" is its AA centre, for small places. */
-  variant?: "badge" | "mark";
   style?: StyleProp<ImageStyle>;
 }
 
 /**
- * The academy's logo. Below about 64 px the badge's curved lettering cannot be
- * read, so headers and the menu use the AA mark and larger places the badge.
+ * The academy's complete round badge, never cropped and never stretched:
+ * the picture is square, drawn in a square box, and `contain` keeps all of it
+ * inside whatever box it is given. Pick `size` for the place: about 40–48 in
+ * a header or menu, over 100 on the sign-in screen.
  */
-export function BrandMark({ size, variant = "mark", style }: Props) {
+export function BrandMark({ size, style }: Props) {
   return (
     <Image
-      source={variant === "badge" ? BADGE : MARK}
+      source={BADGE}
       style={[{ width: size, height: size }, style]}
       resizeMode="contain"
       accessibilityLabel="Akbar's Academy"

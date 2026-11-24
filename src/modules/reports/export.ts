@@ -109,7 +109,7 @@ export function reportHtml(report: Report, academyName: string, printedOn?: stri
   @page { size: A4 ${wide ? "landscape" : "portrait"}; margin: 12mm; }
   body { font-size: 10.5pt; }
   .brand { display: flex; align-items: center; gap: 8pt; margin-bottom: 4pt; }
-  .brand img { width: 14mm; height: 14mm; }
+  .brand img { width: 14mm; height: 14mm; object-fit: contain; }
   .academy { font-size: 9pt; color: #4A5568; text-transform: uppercase; letter-spacing: 0.04em; }
   h1 { font-size: 15pt; margin: 2pt 0; }
   .sub { color: #4A5568; margin-bottom: 4pt; }
@@ -176,7 +176,7 @@ export function idCardsHtml(report: Report, academyName: string): string {
   .page:last-child { page-break-after: auto; break-after: auto; }
   .card { border: 1px solid #0B1220; border-radius: 3mm; padding: 4mm 5mm; overflow: hidden; display: flex; flex-direction: column; gap: 2mm; }
   .academy { display: flex; align-items: center; gap: 2.5mm; font-size: 10pt; font-weight: 700; color: #1E2A78; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px solid #C3DBF2; padding-bottom: 1.5mm; }
-  .academy img { width: 10mm; height: 10mm; }
+  .academy img { width: 10mm; height: 10mm; object-fit: contain; }
   .name { font-size: 13pt; font-weight: 700; }
   table { border-collapse: collapse; font-size: 9.5pt; }
   th { text-align: left; font-weight: 500; color: #4A5568; padding: 0.6mm 3mm 0.6mm 0; white-space: nowrap; vertical-align: top; }

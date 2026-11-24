@@ -1,6 +1,6 @@
 import { apiClient } from "@api/apiClient";
 import type { ParentAccount } from "@shared/store/useAuthStore";
-import type { Child, ChildLecture, ChildProfile, ChildToday, Overview, ChildDays, Leave, Inbox, ParentAppSettings, ParentMessage, FamilyFees, TestResult, FamilyNotice, FamilyDocument, FamilyIssue, IssueCategory } from "../types";
+import type { Child, ChildLecture, ChildToday, Overview, Inbox, ParentAppSettings, ParentMessage, FamilyFees, TestResult, FamilyNotice, FamilyIssue, IssueCategory } from "../types";
 
 const data = <T>(p: Promise<{ data: { data: T } }>) => p.then((r) => r.data.data);
 
@@ -10,20 +10,12 @@ export const parentApi = Object.freeze({
   children: () => data<Child[]>(apiClient.get("/parent/children")),
   today: (studentId: string) => data<ChildToday>(apiClient.get(`/parent/children/${studentId}/today`)),
   overview: (studentId: string) => data<Overview>(apiClient.get(`/parent/children/${studentId}/overview`)),
-  days: (studentId: string, from: string, to: string) =>
-    data<ChildDays>(apiClient.get(`/parent/children/${studentId}/days`, { params: { from, to } })),
   lectures: (studentId: string, from: string, to: string) =>
     data<ChildLecture[]>(apiClient.get(`/parent/children/${studentId}/lectures`, { params: { from, to } })),
-  profile: (studentId: string) => data<ChildProfile>(apiClient.get(`/parent/children/${studentId}/profile`)),
-  leaves: (studentId: string) => data<Leave[]>(apiClient.get(`/parent/children/${studentId}/leaves`)),
-  applyLeave: (studentId: string, body: { from: string; to: string; reason: string }) =>
-    data<Leave>(apiClient.post(`/parent/children/${studentId}/leaves`, body)),
 
   results: (studentId: string) => data<TestResult[]>(apiClient.get(`/parent/children/${studentId}/results`)),
   fees: (studentId: string) => data<FamilyFees | null>(apiClient.get(`/parent/children/${studentId}/fees`)),
   notices: () => data<FamilyNotice[]>(apiClient.get("/parent/notices")),
-  documents: () => data<FamilyDocument[]>(apiClient.get("/parent/documents")),
-  documentLink: (id: string) => data<{ url: string; expiresInMinutes: number }>(apiClient.get(`/parent/documents/${id}/link`)),
   issues: () => data<FamilyIssue[]>(apiClient.get("/parent/issues")),
   issue: (id: string) => data<FamilyIssue>(apiClient.get(`/parent/issues/${id}`)),
   raiseIssue: (body: { title: string; description: string; category?: IssueCategory; studentId?: string }) =>

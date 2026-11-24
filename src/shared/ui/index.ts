@@ -24,6 +24,7 @@ export { EmptyState } from "./EmptyState";
 export { ErrorState } from "./ErrorState";
 export { Skeleton } from "./Skeleton";
 export { Avatar } from "./Avatar";
+export { CopyButton } from "./CopyButton";
 export { StatTile } from "./StatTile";
 export { StatusChip } from "./StatusChip";
 

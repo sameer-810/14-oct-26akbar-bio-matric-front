@@ -252,7 +252,8 @@ try {
   await forcedChange(parent.page, parentTemp, "Shaikh-Family-2026");
   await parent.page.getByTestId("parent-home").waitFor();
   await parent.page.screenshot({ path: path.join(SHOTS, "access-8-parent-home.png"), fullPage: true });
-  await parent.page.getByTestId("tab-account").click();
+  await parent.page.getByTestId("tab-more").click();
+  await parent.page.getByText("Account", { exact: true }).click();
   check(await shows(parent.page.getByText(`Login ${parentUser.toUpperCase()}`)), `parent ${parentUser.toUpperCase()} lands in the parent app as themselves`);
   await parent.page.goto(`${WEB}/devices`);
   await parent.page.waitForTimeout(1500);

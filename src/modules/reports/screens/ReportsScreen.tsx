@@ -9,6 +9,7 @@ import { academyToday, addDaysTo, formatMonth, shiftMonth } from "@shared/format
 import { canPrint, printHtml } from "@shared/print/printHtml";
 import { useBatches, useStandards, useSettings } from "@modules/academy/hooks/useAcademy";
 import { useReport } from "../hooks/useReports";
+import { DashboardTabs } from "@modules/dashboard/components/DashboardTabs";
 import { ReportTable } from "../components/ReportTable";
 import { exportFileName, idCardsHtml, reportHtml, toCsv, totalsText } from "../export";
 import { REPORT_CHOICES, ENQUIRY_REPORTS, FEE_REPORTS, EXPENSE_REPORTS, type PunchPersonType, type Report, type ReportKey, type ReportParams, type ReportRun } from "../types";
@@ -122,6 +123,7 @@ export default function ReportsScreen() {
   return (
     <Screen title="Reports" subtitle="Pick a report, set its range and run it — then take it to Excel or print it." testID="reports-screen">
       <VStack gap={16}>
+        <DashboardTabs active="Reports" />
         <HStack gap={10} wrap role="radiogroup">
           {choices.map((c) => (
             <Card

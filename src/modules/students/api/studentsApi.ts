@@ -42,8 +42,13 @@ export const studentsApi = Object.freeze({
   async resendToDevices(id: string): Promise<{ queued: number }> {
     return (await apiClient.post(`/students/${id}/resend-to-devices`)).data.data;
   },
-  async resetParentPassword(id: string): Promise<{ username: string; temporaryPassword: string }> {
-    return (await apiClient.post(`/students/${id}/parent-password`)).data.data;
+  /** No password: the server generates one. Either way the family changes it at the next sign-in. */
+  async resetParentPassword(id: string, password?: string): Promise<{ username: string; temporaryPassword: string }> {
+    return (await apiClient.post(`/students/${id}/parent-password`, password ? { password } : {})).data.data;
+  },
+  /** Rename the family's sign-in IDs; returns the student with the updated login. */
+  async updateParentLogin(id: string, body: { username?: string; oldPortalIds?: string[] }): Promise<Student> {
+    return (await apiClient.patch(`/students/${id}/parent-login`, body)).data.data;
   },
   async parentMatches(phone: string): Promise<ParentMatch[]> {
     return (await apiClient.get("/students/parent-matches", { params: { phone } })).data.data;

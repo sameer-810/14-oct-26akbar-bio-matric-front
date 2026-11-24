@@ -1,8 +1,13 @@
 name: Build Android (.apk / .aab)
 
-# Run it from the GitHub "Actions" tab → "Build Android" → "Run workflow".
-# Builds with `eas build --local` on GitHub's free Ubuntu runner (no EAS build
-# credits used) and publishes the result on the repository's Releases page.
+# Runs on every push to main that changes the app (docs- and test-only pushes
+# are skipped), and by hand from the GitHub "Actions" tab → "Build Android" →
+# "Run workflow". Builds with `eas build --local` on GitHub's free Ubuntu runner
+# (no EAS build credits used), then:
+#   • uploads the installable file as a downloadable ARTIFACT of the run
+#     (Actions → the run → Artifacts), kept 14 days, and
+#   • for a run started by hand, also publishes it on the Releases page.
+# A push builds the `preview` profile: the signed release .apk.
 #
 # Pick a profile when you run it:
 #   • preview    → installable .apk to send to the pilot batch's parents and
@@ -15,6 +20,16 @@ name: Build Android (.apk / .aab)
 # Both builds talk to https://bio.fiveminfotech.com
 # (eas.json). Needs the repository secret EXPO_TOKEN.
 on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - "tests/**"
+      - "tools/**"
+      - ".github/workflows/ci.yml"
+      - ".github/workflows/ota-update.yml"
+      - ".github/workflows/build-ios.yml"
   workflow_dispatch:
     inputs:
       profile:
@@ -26,16 +41,40 @@ on:
           - device-test
         default: preview
 
+# a newer push replaces a build still running for the same branch
+concurrency:
+  group: build-android-${{ github.ref }}-${{ inputs.profile || 'preview' }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
+    env:
+      # a push has no inputs: it builds the installable release .apk
+      PROFILE: ${{ inputs.profile || 'preview' }}
     # needed to publish the build as a GitHub Release asset
     permissions:
       contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # Checked first so a missing secret stops the run in seconds with a plain
+      # message, instead of failing half an hour in. Only presence is tested:
+      # no value is printed or written anywhere.
+      - name: Check the build secrets are set
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          missing=""
+          [ -z "$EXPO_TOKEN" ] && missing="$missing EXPO_TOKEN"
+          [ -z "$GOOGLE_SERVICES_JSON" ] && missing="$missing GOOGLE_SERVICES_JSON"
+          if [ -n "$missing" ]; then
+            echo "::error title=Build secrets missing::Add these repository secrets (Settings → Secrets and variables → Actions):$missing"
+            exit 1
+          fi
 
       - name: Free up disk space (remove preinstalled tools we don't need)
         run: |
@@ -92,7 +131,7 @@ jobs:
       - name: Pick output extension for the profile
         id: out
         run: |
-          if [ "${{ inputs.profile }}" != "production" ]; then
+          if [ "$PROFILE" != "production" ]; then
             echo "ext=apk" >> "$GITHUB_OUTPUT"
           else
             echo "ext=aab" >> "$GITHUB_OUTPUT"
@@ -118,7 +157,7 @@ jobs:
         run: |
           eas build --local \
             --platform android \
-            --profile "${{ inputs.profile }}" \
+            --profile "$PROFILE" \
             --non-interactive \
             --output "${{ github.workspace }}/akbars-academy.${{ steps.out.outputs.ext }}"
 
@@ -129,7 +168,7 @@ jobs:
       # Play review questions and a Data safety declaration nobody wants.
       - name: Verify no blocked permission survived the merge
         # a debug build carries SYSTEM_ALERT_WINDOW for React Native's developer menu; it is never shipped
-        if: inputs.profile != 'device-test'
+        if: env.PROFILE != 'device-test'
         run: |
           BT=1.17.2
           curl -sL -o /tmp/bundletool.jar \
@@ -156,15 +195,67 @@ jobs:
           fi
           echo "OK — none of the blocked permissions are in the build."
 
-      # a GitHub RELEASE, not an artifact: release assets do not count against
-      # the 500 MB Actions artifact quota
+      # A phone refuses an APK that is not signed, so check it before it is
+      # offered for download. The signer's certificate is printed, never the key.
+      - name: Verify the APK is signed and installable
+        if: steps.out.outputs.ext == 'apk'
+        run: |
+          BT="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)"
+          APK="akbars-academy.apk"
+          "$BT"apksigner verify --verbose --print-certs "$APK" | grep -E "^(Verifies|Verified using|Number of signers|Signer #1 certificate (DN|SHA-256))"
+          "$BT"aapt2 dump badging "$APK" | grep -E "^(package|sdkVersion|targetSdkVersion|application-label:)"
+          sha256sum "$APK"
+
+      # The downloadable file of this run: Actions → the run → Artifacts.
+      - name: Upload the build as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: akbars-academy-${{ env.PROFILE }}-${{ github.run_number }}
+          path: akbars-academy.${{ steps.out.outputs.ext }}
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+
+      - name: Say where the build is
+        run: |
+          {
+            echo "### Android ${PROFILE} build #${{ github.run_number }}"
+            echo ""
+            echo "Download: **Artifacts** at the bottom of this page → \`akbars-academy-${PROFILE}-${{ github.run_number }}\` (kept 14 days)."
+            echo ""
+            echo "Commit: \`${GITHUB_SHA::7}\` on \`${GITHUB_REF_NAME}\`"
+            echo ""
+            echo "\`\`\`"
+            ls -l "akbars-academy.${{ steps.out.outputs.ext }}" | awk '{print $5" bytes  "$9}'
+            sha256sum "akbars-academy.${{ steps.out.outputs.ext }}"
+            echo "\`\`\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # a GitHub RELEASE too, for a build run by hand: release assets do not
+      # count against the Actions artifact quota. A push makes no release.
       - name: Publish build to a GitHub Release
+        if: github.event_name == 'workflow_dispatch'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG="android-${{ inputs.profile }}-${{ github.run_number }}"
+          TAG="android-${PROFILE}-${{ github.run_number }}"
           gh release create "$TAG" \
             "akbars-academy.${{ steps.out.outputs.ext }}" \
-            --title "Android ${{ inputs.profile }} build #${{ github.run_number }}" \
-            --notes "Automated \`eas build --local\` output. Download the .${{ steps.out.outputs.ext }} file below. API: as set for the ${{ inputs.profile }} profile in eas.json" \
+            --title "Android ${PROFILE} build #${{ github.run_number }}" \
+            --notes "Automated \`eas build --local\` output. Download the .${{ steps.out.outputs.ext }} file below. API: as set for the ${PROFILE} profile in eas.json" \
             --prerelease
+
+      # Red steps already say which one failed; this adds the next move to the
+      # run's summary page so it is not buried in the log.
+      - name: Report a failed build
+        if: failure()
+        run: |
+          {
+            echo "### Android ${PROFILE} build #${{ github.run_number }} FAILED"
+            echo ""
+            echo "Open the red step above for its log. Common causes:"
+            echo "- **Build secrets missing** → add EXPO_TOKEN and GOOGLE_SERVICES_JSON under Settings → Secrets and variables → Actions."
+            echo "- **Blocked permission survived the merge** → a new library asked for microphone, location or storage; see the step's list."
+            echo "- **The APK is not signed** → check the Android credentials for this profile on expo.dev."
+            echo "- **Out of disk or memory** → re-run; the Gradle cache usually makes the second run succeed."
+          } >> "$GITHUB_STEP_SUMMARY"

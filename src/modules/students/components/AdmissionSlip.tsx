@@ -1,6 +1,6 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { VStack, HStack, Text, Button, Banner } from "@shared/ui";
+import { VStack, HStack, Text, Button, Banner, CopyButton } from "@shared/ui";
 import { palette, radius } from "@shared/designSystem";
 import { canPrint, printHtml, escapeHtml } from "@shared/print/printHtml";
 import { LOGO_DATA_URI } from "@shared/print/logo";
@@ -34,7 +34,7 @@ export function AdmissionSlip(p: Props) {
     printHtml(`<!doctype html><html><head><meta charset="utf-8"><title>Admission slip</title>
 <style>
   body{font-family:Arial,Helvetica,sans-serif;margin:32px;color:#0B1220}
-  .logo{width:72px;height:72px;display:block;margin:0 0 10px} h1{font-size:20px;margin:0 0 4px} p{margin:4px 0 16px;color:#3A4657;font-size:13px}
+  .logo{width:72px;height:72px;object-fit:contain;display:block;margin:0 0 10px} h1{font-size:20px;margin:0 0 4px} p{margin:4px 0 16px;color:#3A4657;font-size:13px}
   table{border-collapse:collapse;width:100%;max-width:520px}
   th,td{border:1px solid #BFC6D0;padding:10px;text-align:left;font-size:15px}
   th{background:#F6F8FA;width:45%;font-weight:600}
@@ -72,6 +72,9 @@ export function AdmissionSlip(p: Props) {
             <Text variant="h3" selectable style={styles.mono} testID={`slip-${k.toLowerCase().replace(/\s+/g, "-")}`}>
               {v}
             </Text>
+            {k === "Temporary password" ? (
+              <CopyButton text={v} what="the temporary password" successMessage="Password copied successfully." testID="slip-copy-password" />
+            ) : null}
           </HStack>
         ))}
       </View>

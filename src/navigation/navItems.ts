@@ -31,12 +31,12 @@ import {
 import { PERMISSIONS } from "@shared/permissions";
 import { useAuthStore } from "@shared/store/useAuthStore";
 
-export type NavSection = "Overview" | "Academy" | "Attendance" | "Communication" | "Money" | "Administration" | "Workspace";
+export type NavSection = "Dashboard" | "Academy" | "Attendance" | "Communication" | "Money" | "Administration" | "Workspace";
 
-export const SECTION_ORDER: NavSection[] = ["Overview", "Academy", "Attendance", "Communication", "Money", "Administration", "Workspace"];
+export const SECTION_ORDER: NavSection[] = ["Dashboard", "Academy", "Attendance", "Communication", "Money", "Administration", "Workspace"];
 
 export const SECTION_ICON: Record<NavSection, LucideIcon> = {
-  Overview: LayoutDashboard,
+  Dashboard: LayoutDashboard,
   Academy: GraduationCap,
   Attendance: Fingerprint,
   Communication: Megaphone,
@@ -44,6 +44,26 @@ export const SECTION_ICON: Record<NavSection, LucideIcon> = {
   Administration: Settings,
   Workspace: UserRound,
 };
+
+/** A sidebar dropdown that holds other sections, each still its own dropdown. */
+export type NavFolder = "Settings";
+
+/** Sections shown inside a folder rather than at the top of the sidebar. */
+export const SECTION_FOLDER: Partial<Record<NavSection, NavFolder>> = {
+  Communication: "Settings",
+  Money: "Settings",
+  Administration: "Settings",
+  Workspace: "Settings",
+};
+
+export const FOLDER_ICON: Record<NavFolder, LucideIcon> = { Settings: Settings };
+
+/** The sidebar's top level, in order: plain sections, then folders where their first section was. */
+export const TOP_LEVEL: (NavSection | NavFolder)[] = [];
+for (const section of SECTION_ORDER) {
+  const entry = SECTION_FOLDER[section] ?? section;
+  if (!TOP_LEVEL.includes(entry)) TOP_LEVEL.push(entry);
+}
 
 export interface NavItem {
   /** route name; must match a key in AppNavigator's SCREENS and the linking table */
@@ -55,7 +75,16 @@ export interface NavItem {
   permissionAny?: string[];
   /** only for a login linked to a faculty member */
   teacherOnly?: boolean;
+  /**
+   * Opened from a tab on that page, so the sidebar shows that page's row
+   * instead (highlighted while this one is open). Kept as its own row for
+   * someone who may open this but not that.
+   */
+  sidebarAs?: string;
 }
+
+/** Sections with no dropdown: their pages are plain links at the top of the sidebar. */
+export const FLAT_SECTIONS: NavSection[] = ["Dashboard"];
 
 /**
  * Drives both the sidebar and route registration: a route the person cannot
@@ -67,14 +96,16 @@ export const NAV_ITEMS: NavItem[] = [
     name: "Dashboard",
     label: "Dashboard",
     icon: LayoutDashboard,
-    section: "Overview",
+    section: "Dashboard",
     permissionAny: [PERMISSIONS.DASHBOARD_VIEW],
   },
   {
     name: "Reports",
     label: "Reports",
     icon: BarChart3,
-    section: "Overview",
+    section: "Dashboard",
+    // a tab on the Dashboard page
+    sidebarAs: "Dashboard",
     permissionAny: [
       PERMISSIONS.REPORTS_VIEW,
       PERMISSIONS.PAYROLL_VIEW,
